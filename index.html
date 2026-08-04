@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tesla Archive</title>
+<link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">&#9776;</button>
+      <img src="assets/seal.png" alt="XI-TESLA Seal" class="navbar-seal" />
+      <div class="navbar-title">Tesla<span>Archive</span></div>
+    </div>
+    <button class="theme-switch" id="themeSwitch">🌙 Dark Mode</button>
+  </nav>
+
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <ul class="sidebar-nav">
+      <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
+
+      <li><a href="#" class="nav-link" data-page="snaps">Tesla Snaps</a></li>
+      <li><a href="#" class="nav-link" data-page="scrolls">Tesla Scrolls</a></li>
+      <li><a href="#" class="nav-link" data-page="posts">Tesla Posts</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <section class="page active" id="home">
+      <div class="home-hero">
+        <img src="assets/seal.png" alt="XI-TESLA Official Seal" class="home-seal" />
+        <div>
+          <h1>Home</h1>
+          <p>Welcome to Tesla Archive — your central place for announcements, snaps, and scrolls. Use the sidebar to navigate between sections.</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Latest Update</h3>
+        <p>Open the sidebar "&#9776;" and explore Tesla Snaps and Tesla Scrolls sections for the latest updates.</p>
+      </div>
+
+      <div class="card">
+        <h3>Connect With Us</h3>
+        <ul class="social-list">
+          <li>
+            <a href="https://www.facebook.com/profile.php?id=61590701973003" class="social-link" target="_blank" rel="noopener">
+              <span class="social-icon"><img src="assets/fb.png" alt="Facebook" width="20px"/></span> Facebook
+            </a>
+          </li>
+          <li>
+            <a href="https://www.instagram.com/cnhs.stem.tesla2026/" class="social-link" target="_blank" rel="noopener">
+              <span class="social-icon"><img src="assets/ig.png" alt="Instagram" width="20px"/></span> Instagram
+            </a>
+          </li>
+          <li>
+            <a href="#" class="social-link" target="_blank" rel="noopener">
+              <span class="social-icon"><img src="assets/tt.webp" alt="TikTok" width="20px"/></span> TikTok
+            </a>
+          </li>
+          <li>
+            <a href="mailto:tesla.engi.stem.shs.cnhs@gmail.com" class="social-link">
+              <span class="social-icon"><img src="assets/gm.webp" alt="Email" width="20px"/></span> Email (tesla.engi.stem.shs.cnhs@gmail.com)
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="page" id="snaps"></section>
+    <section class="page" id="scrolls"></section>
+    <section class="page" id="posts"></section>
+  </main>
+
+  <script src="index.js"></script>
+</body>
+</html>
