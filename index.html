@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Tesla Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="index.css" />
 <link rel="shortcut icon" href="/assets/seal.png" type="image/png" />
 </head>
@@ -34,14 +37,29 @@
     <section class="page active" id="home">
       <div class="home-hero">
         <img src="assets/seal.png" alt="XI-TESLA Official Seal" class="home-seal" />
-        <div>
-          <h1>Home</h1>
-          <p>Welcome to Tesla Archive - your central place for posts, snaps, and scrolls. Use the sidebar to navigate between sections.</p>
+        <div class="home-hero-copy">
+          <span class="eyebrow">Welcome to</span>
+          <h1 style="color: #fff;">Tesla Archive</h1>
+          <p>Your central place for Posts, Snaps, and Scrolls. Use the sidebar to jump into any section.</p>
         </div>
       </div>
-      <div class="card">
-        <h3>Latest Update</h3>
-        <p>Open the sidebar "&#9776;" and explore Tesla Snaps and Tesla Scrolls sections for the latest updates.</p>
+
+      <div class="home-grid">
+        <a href="#" class="nav-link home-shortcut" data-page="snaps">
+          <span class="home-shortcut-icon">📷</span>
+          <h3>Tesla Snaps</h3>
+          <p>Photo moments, Instagram-style.</p>
+        </a>
+        <a href="#" class="nav-link home-shortcut" data-page="scrolls">
+          <span class="home-shortcut-icon">🎬</span>
+          <h3>Tesla Scrolls</h3>
+          <p>Short vertical video, TikTok-style.</p>
+        </a>
+        <a href="#" class="nav-link home-shortcut" data-page="posts">
+          <span class="home-shortcut-icon">📰</span>
+          <h3>Tesla Posts</h3>
+          <p>Announcements, sortable by tag.</p>
+        </a>
       </div>
 
       <div class="card">
@@ -76,6 +94,18 @@
     <section class="page" id="posts"></section>
   </main>
 
+  <!-- Lightbox for Snaps -->
+  <div class="fullscreen-modal" id="snapModal">
+    <button class="modal-close" id="snapModalClose" aria-label="Close">&times;</button>
+    <button class="modal-nav prev" id="snapModalPrev" aria-label="Previous">&#10094;</button>
+    <div class="modal-content snaps-modal-content">
+      <img id="snapModalImg" src="" alt="" />
+      <p class="modal-caption" id="snapModalCaption"></p>
+    </div>
+    <button class="modal-nav next" id="snapModalNext" aria-label="Next">&#10095;</button>
+  </div>
+
+  <script src="data.js"></script>
   <script src="index.js"></script>
 </body>
 </html>
