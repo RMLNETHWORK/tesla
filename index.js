@@ -92,7 +92,12 @@ async function loadSection(pageId) {
   if (!section || pageId === 'home') return; // home content is inline
 
   try {
-    const response = await fetch(`sections/${pageId}.html`);
+    const VERSION =
+      document.currentScript.src.match(/[?&]v=([^&]+)/)?.[1] || "dev";
+
+    const response = await fetch(
+      `sections/${pageId}.html?v=${VERSION}`
+    );
     if (!response.ok) throw new Error(`Failed to load ${pageId}`);
     const html = await response.text();
     section.innerHTML = html;
