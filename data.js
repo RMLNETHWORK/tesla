@@ -101,7 +101,7 @@ const POSTS = [
   }, */
   {
     id: 'post1',
-    title: 'EffCom Performance TaskUpdate',
+    title: 'EffCom Performance Task Update',
     description: 'Submissions for the Performance Task 1 in Effective Communication is now open, you can now send them to Rolance Labayog.\nPlease submit your work before the deadline [DL: 08-09-2026 @ 11:59 PM].',
     tag: 'PT - EffCom',
     author: 'admin',
