@@ -22,66 +22,83 @@
 // SNAPS — one photo + short caption each
 // ---------------------------------------------------------------------------
 const SNAPS = [
-  {
+  /* {
     id: 'snap-demo-1',
     image: 'assets/demo/snap-1.jpg',
     caption: 'Demo snap — replace with a real photo in data.js.',
     date: '2026-08-01',
-  },
-  {
-    id: 'snap-demo-2',
-    image: 'assets/demo/snap-2.jpg',
-    caption: 'Another demo snap. Delete these once real content is in.',
-    date: '2026-07-28',
-  },
-  {
-    id: 'snap-demo-3',
-    image: 'assets/demo/snap-3.jpg',
-    caption: 'Third demo snap, just to show the grid with more than two items.',
-    date: '2026-07-20',
-  },
+  }, */
 ];
 
 // ---------------------------------------------------------------------------
 // SCROLLS — one video + short caption each
 // ---------------------------------------------------------------------------
 const SCROLLS = [
-  {
+  /* {
     id: 'scroll-demo-1',
     video: 'assets/demo/video.mp4',
     caption: 'Demo scroll #1 — swap in a real vertical video.',
     date: '2026-08-02',
-  },
-  {
-    id: 'scroll-demo-2',
-    video: 'assets/demo/scroll-2.mp4',
-    caption: 'Demo scroll #2 — scroll snaps one video at a time, like TikTok.',
-    date: '2026-07-25',
-  },
+  }, */
 ];
 
 // ---------------------------------------------------------------------------
-// POSTS — title + description + tag, with one photo OR one video
+// AUTHORS — the people who post, not the org account. Every POSTS entry
+// below must reference one of these by `id` in its own `author` field —
+// Posts are no longer attributed to "Tesla Archive" itself.
 // ---------------------------------------------------------------------------
-// Tags in use so far. Add a new string here to introduce a new filter pill —
-// it shows up on the Posts page automatically.
-const POST_TAGS = ['Feels', 'PT - EffCom'];
+// `avatar` is this author's DEFAULT profile picture — used on their own
+// author page, and on any of their posts that don't set their own `avatar`
+// (see POSTS below). Optional — omit it and the default seal icon is used
+// instead. Add a new { id, name, avatar? } object here, then reference its
+// `id` from any POSTS entry's `author` field. Clicking an author's name/
+// avatar on a post opens that author's own page, showing only their posts.
+const AUTHORS = {
+  'admin': {
+    name: 'Tesla Archive',
+  },
+  'author-demo-2': {
+    name: 'Maria Santos',
+    // no avatar set — falls back to the default seal icon
+  },
+};
 
+// ---------------------------------------------------------------------------
+// POSTS — title + description + tag + author, with one photo OR one video
+// ---------------------------------------------------------------------------
+// Tags in use so far, each mapped to its own color (any valid CSS color —
+// hex, rgb(), etc). Add a new "Tag Name": "#color" pair to introduce a new
+// filter pill — it shows up on the Posts page automatically, colored the
+// way you set it here. The tag on each POSTS entry below must match a key
+// in this object exactly.
+const POST_TAGS = {
+  'Feels': '#fed700',
+  'PT - EffCom': '#4a90e2',
+};
+
+// `avatar` on a POST is optional and manually set per post — a specific
+// file path, picked by hand, just for that entry. Set it when this
+// particular post should show a different picture than the author's usual
+// one (e.g. a guest post, an in-costume photo, a picture tied to the post's
+// topic). Leave it out and the post falls back to that author's `avatar`
+// from AUTHORS above, then to the default seal icon if neither is set.
 const POSTS = [
-  {
+  /* {
     id: 'post-demo-1',
     title: 'Demo Announcement',
     description: 'This is placeholder body text for a Post. Posts are the long-form option — a title, a short description, and one tag to sort by.',
     tag: 'Feels',
+    author: 'author-demo-1',
+    avatar: 'assets/anon.webp', // manually picked for this post — overrides author-demo-1's usual avatar
     image: 'assets/demo/post-photo-1.jpg',
     date: '2026-08-03',
-  },
+  }, */
   {
-    id: 'post-demo-2',
-    title: 'Demo EffCom Update',
-    description: 'Second demo post, this one tagged under "PT - EffCom" and using a video instead of a photo.',
+    id: 'post1',
+    title: 'EffCom Performance TaskUpdate',
+    description: 'Submissions for the Performance Task 1 in Effective Communication is now open, you can now send them to Rolance Labayog.\nPlease submit your work before the deadline [DL: 08-09-2026 @ 11:59 PM].',
     tag: 'PT - EffCom',
-    video: 'assets/demo/post-video-1.mp4',
-    date: '2026-07-30',
+    author: 'admin',
+    date: '2026-08-06',
   },
 ];

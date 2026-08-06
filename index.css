@@ -51,6 +51,60 @@
 
 html { scroll-behavior: smooth; }
 
+/* ==========================================================================
+   MOTION — electric-current motifs (Tesla's AC current, coil discharge,
+   arcing) used sparingly as slow, ambient animation. Kept low-opacity and
+   low-frequency so the site reads as "powered", not decorative.
+   ========================================================================== */
+@keyframes current-travel {
+  0%   { transform: translateX(-120%); opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { transform: translateX(920%); opacity: 0; }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(0.85); opacity: 0.45; }
+  70%  { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes spark-flicker {
+  0%, 100% { opacity: 0; }
+  2%   { opacity: 0.85; }
+  4%   { opacity: 0.05; }
+  6%   { opacity: 0.6; }
+  9%   { opacity: 0; }
+}
+
+@keyframes accent-shimmer {
+  0%   { background-position: -140% 0, 0 0; }
+  100% { background-position: 240% 0, 0 0; }
+}
+
+@keyframes accent-shimmer-v {
+  0%   { background-position: 0 -140%, 0 0; }
+  100% { background-position: 0 240%, 0 0; }
+}
+
+@keyframes seal-breathe {
+  0%, 100% { filter: drop-shadow(0 6px 16px rgba(0,0,0,0.3)) drop-shadow(0 0 0 rgba(254,215,0,0)); }
+  50%      { filter: drop-shadow(0 6px 16px rgba(0,0,0,0.3)) drop-shadow(0 0 12px rgba(254,215,0,0.55)); }
+}
+
+@keyframes glow-breathe {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(254, 215, 0, 0.25), 0 0 0 rgba(254, 215, 0, 0); }
+  50%      { box-shadow: 0 0 0 1px rgba(254, 215, 0, 0.4), 0 0 10px rgba(254, 215, 0, 0.35); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 body {
   font-family: var(--font-body);
   background: var(--bg);
@@ -78,6 +132,28 @@ a { color: inherit; }
   padding: 0 1.25rem;
   z-index: 1000;
   box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+/* soft light sweep behind the seal + a hairline accent along the bottom
+   edge — separates the bar from the page content below it */
+.navbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 260px 140px at 4% 15%, rgba(255,255,255,0.12), transparent 65%),
+    linear-gradient(90deg, var(--accent) 0%, rgba(254,215,0,0.35) 35%, transparent 75%);
+  background-repeat: no-repeat, no-repeat;
+  background-size: auto, 100% 3px;
+  background-position: 0 0, 0 100%;
+  pointer-events: none;
+}
+
+.navbar-left,
+.theme-switch {
+  position: relative;
+  z-index: 1;
 }
 
 .navbar-left {
@@ -105,6 +181,7 @@ a { color: inherit; }
   width: 38px;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  animation: seal-breathe 5s ease-in-out infinite;
 }
 
 .navbar-title {
@@ -121,7 +198,7 @@ a { color: inherit; }
   color: #fff;
   border: 1px solid rgba(255,255,255,0.25);
   border-radius: 24px;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem;
   font-weight: 600;
   cursor: pointer;
   font-size: 0.82rem;
@@ -129,6 +206,21 @@ a { color: inherit; }
 }
 
 .theme-switch:hover { background: rgba(255,255,255,0.22); transform: scale(1.03); }
+
+/* a small bright pulse that travels along the navbar's bottom accent line —
+   reads as current running through the circuit, not a decoration */
+.navbar-current {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 10%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #fff 50%, transparent);
+  filter: blur(0.5px);
+  pointer-events: none;
+  animation: current-travel 6s linear infinite;
+}
+
 
 /* ==========================================================================
    SIDEBAR
@@ -173,6 +265,7 @@ a { color: inherit; }
 .sidebar-nav a.active {
   background: var(--primary);
   color: #fff;
+  animation: glow-breathe 5s ease-in-out infinite;
 }
 
 [data-theme="dark"] .sidebar-nav a.active {
@@ -250,27 +343,94 @@ a { color: inherit; }
   background-size: cover;
   color: #fff;
   border-radius: var(--radius-lg);
-  padding: 2.25rem 2.25rem;
+  padding: 2.5rem 2.5rem;
   box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
+}
+
+/* layered wash: darken for legibility, warm glow top-right, faint diagonal
+   grain to match the navbar's texture so the identity carries through */
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg, rgba(20, 4, 32, 0.88) 0%, rgba(30, 6, 46, 0.55) 55%, rgba(20, 4, 32, 0.82) 100%),
+    radial-gradient(circle at 88% 12%, rgba(254, 215, 0, 0.28), transparent 55%);
+  pointer-events: none;
 }
 
 .home-hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 85% 20%, rgba(254, 215, 0, 0.25), transparent 55%);
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.035) 0px,
+    rgba(255, 255, 255, 0.035) 1px,
+    transparent 1px,
+    transparent 13px
+  );
   pointer-events: none;
 }
 
-.home-seal {
-  width: 96px;
-  height: 96px;
-  object-fit: contain;
+.home-seal-wrap {
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
-  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.3));
+  width: 92px;
+  height: 92px;
 }
+
+/* two rings expanding outward from the seal, staggered — a quiet nod to a
+   Tesla coil's corona discharge rather than a literal spark effect */
+.home-seal-wrap::before,
+.home-seal-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  animation: pulse-ring 4s ease-out infinite;
+  pointer-events: none;
+}
+
+.home-seal-wrap::after { animation-delay: 2s; }
+
+.home-seal {
+  position: relative;
+  z-index: 1;
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  backdrop-filter: blur(6px);
+  animation: seal-breathe 5s ease-in-out infinite;
+}
+
+/* faint spark flickers over the hero — timed to feel like arcing electricity,
+   not fireworks: brief, infrequent, and low-opacity */
+.hero-spark {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px 1px rgba(254, 215, 0, 0.8);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-spark-1 { top: 22%; right: 18%; animation: spark-flicker 7s ease-in-out infinite; }
+.hero-spark-2 { top: 62%; right: 32%; animation: spark-flicker 9s ease-in-out infinite; animation-delay: 3s; }
+.hero-spark-3 { top: 40%; right: 8%;  animation: spark-flicker 8s ease-in-out infinite; animation-delay: 5.5s; }
+
+.home-hero-copy { position: relative; z-index: 1; }
 
 .home-hero-copy h1 {
   font-family: var(--font-display);
@@ -284,7 +444,14 @@ a { color: inherit; }
   opacity: 0.92;
 }
 
-.home-hero .eyebrow { color: var(--accent-soft); }
+.home-hero .eyebrow {
+  color: var(--accent);
+  background: rgba(254, 215, 0, 0.14);
+  border: 1px solid rgba(254, 215, 0, 0.35);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  margin-bottom: 0.6rem;
+}
 
 .home-grid {
   display: grid;
@@ -293,40 +460,131 @@ a { color: inherit; }
   margin-top: 1.75rem;
 }
 
+/* every shortcut card shares one shape: badge icon top-left, title+blurb
+   anchored to the bottom, media layer behind it all — only what fills the
+   media layer changes (real photo, real video, or a generated pattern) */
 .home-shortcut {
-  display: block;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
   border-radius: var(--radius-md);
-  padding: 1.5rem;
+  padding: 1.35rem;
   text-decoration: none;
-  color: var(--text);
+  color: #fff;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-shortcut::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.9) 8%, transparent 16%),
+    var(--accent);
+  background-size: 60% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  z-index: 3;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+  animation: accent-shimmer 5s linear infinite;
 }
 
 .home-shortcut:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--primary);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.home-shortcut:hover::before { opacity: 1; }
+
+.home-shortcut-media,
+.home-shortcut-media img,
+.home-shortcut-media video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-shortcut-media {
+  background: linear-gradient(135deg, var(--primary), var(--primary-soft));
+}
+
+.home-shortcut:hover .home-shortcut-media img,
+.home-shortcut:hover .home-shortcut-media video {
+  transform: scale(1.05);
+  transition: transform 0.4s ease;
+}
+
+/* generated texture used for the Posts card, in place of a photo/video —
+   keeps the same visual language as Snaps/Scrolls without needing an asset */
+.home-shortcut-media--pattern {
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 12px),
+    radial-gradient(circle at 80% 15%, rgba(254, 215, 0, 0.35), transparent 55%),
+    linear-gradient(135deg, var(--primary), var(--primary-soft));
+}
+
+.home-shortcut-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(20, 8, 30, 0.1) 0%, rgba(12, 4, 20, 0.85) 100%);
 }
 
 .home-shortcut-icon {
-  font-size: 1.8rem;
-  display: block;
-  margin-bottom: 0.6rem;
+  position: relative;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  backdrop-filter: blur(4px);
+  margin-bottom: 0.75rem;
+  align-self: flex-start;
+}
+
+.home-shortcut-text {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+}
+
+.home-shortcut-text::after {
+  content: "Explore →";
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.home-shortcut:hover .home-shortcut-text::after {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .home-shortcut h3 {
   font-family: var(--font-display);
   font-size: 1.05rem;
   margin-bottom: 0.3rem;
+  color: #fff;
 }
 
 .home-shortcut p {
-  color: var(--text-soft);
   font-size: 0.9rem;
   line-height: 1.5;
+  color: #fff;
+  opacity: 0.85;
 }
 
 .card {
@@ -336,6 +594,23 @@ a { color: inherit; }
   padding: 1.5rem;
   margin-top: 1.5rem;
   box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.9) 8%, transparent 16%),
+    linear-gradient(180deg, var(--accent), var(--primary-soft));
+  background-size: 100% 60%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 0 -140%, 0 0;
+  animation: accent-shimmer-v 6s linear infinite;
 }
 
 .card h3 {
@@ -445,13 +720,84 @@ a { color: inherit; }
 }
 
 /* ==========================================================================
-   SCROLLS — TikTok-style vertical snap feed
+   SCROLLS — grid browser (like Snaps) + fullscreen vertical viewer
    ========================================================================== */
+
+/* --- Grid of tiles on the Scrolls page itself, mirrors .gallery-grid --- */
+.scrolls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1.4rem;
+}
+
+.scroll-tile {
+  cursor: pointer;
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scroll-tile:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.scroll-tile-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  background: #000;
+}
+
+.scroll-tile-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.scroll-tile-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.2rem;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 4px 14px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
+.scroll-tile-caption {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  color: #fff;
+  padding: 2rem 0.85rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.scroll-tile-caption .gallery-date {
+  color: rgba(255,255,255,0.7);
+}
+
+/* --- Fullscreen vertical viewer (opened by tapping a tile) --- */
+.fullscreen-modal.scrolls-modal {
+  padding: 1.25rem 1rem;
+}
+
 .scrolls-container {
-  max-width: 380px;
+  width: 100%;
+  max-width: 420px;
   margin: 0 auto;
-  height: calc(100vh - 64px - 4rem);
-  max-height: 780px;
+  height: 100%;
+  max-height: 100%;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   border-radius: var(--radius-lg);
@@ -481,6 +827,11 @@ a { color: inherit; }
   object-fit: cover;
 }
 
+/* native <video controls> bar sits on top of the caption gradient */
+.scroll-item video::-webkit-media-controls-panel {
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
 .scroll-play-icon {
   position: absolute;
   top: 50%;
@@ -501,7 +852,8 @@ a { color: inherit; }
   bottom: 0; left: 0; right: 0;
   background: linear-gradient(transparent, rgba(0,0,0,0.75));
   color: #fff;
-  padding: 3rem 1.2rem 1.2rem;
+  padding: 3rem 1.2rem 3.2rem;
+  pointer-events: none;
 }
 
 .scroll-caption p {
@@ -514,15 +866,21 @@ a { color: inherit; }
   color: rgba(255,255,255,0.7);
 }
 
-.scrolls-hint {
-  text-align: center;
-  color: var(--text-soft);
-  font-size: 0.82rem;
-  margin-top: 0.9rem;
+.scroll-counter {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0,0,0,0.4);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
 }
 
 /* ==========================================================================
-   POSTS — filterable feed
+   POSTS — filterable feed, Facebook-style cards
    ========================================================================== */
 .tag-filter {
   display: flex;
@@ -532,105 +890,234 @@ a { color: inherit; }
 }
 
 .tag-pill {
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-soft);
+  --tag-color: var(--primary);
+  border: 1.5px solid var(--tag-color);
+  background: transparent;
+  color: var(--tag-color);
   font-weight: 600;
   font-size: 0.84rem;
   padding: 0.5rem 1.05rem;
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
-.tag-pill:hover { border-color: var(--primary); color: var(--text); }
+.tag-pill:hover { background: color-mix(in srgb, var(--tag-color) 12%, transparent); }
 
 .tag-pill.active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: #fff;
-}
-
-[data-theme="dark"] .tag-pill.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--primary);
+  background: var(--tag-color);
+  color: var(--tag-contrast, #fff);
 }
 
 .posts-feed {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-width: 640px;
+  max-width: 560px;
+  margin: 0 auto;
 }
 
+/* --- card shell --- */
 .post-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 
-.post-card:hover {
-  box-shadow: var(--shadow-md);
+.post-card:hover { box-shadow: var(--shadow-md); }
+
+/* --- header: avatar, author name, tag + timestamp, like Facebook's post header --- */
+.post-header {
+  padding: 0.9rem 1.1rem;
 }
 
-.post-media {
-  width: 100%;
-  max-height: 420px;
-  object-fit: cover;
-  display: block;
-  background: var(--bg);
-}
-
-.post-body {
-  padding: 1.35rem 1.5rem 1.5rem;
-}
-
-.post-tag-row {
+/* the whole header row is a button — clicking the author opens their page,
+   separate from clicking the media/text which opens the post itself */
+.post-author {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.6rem;
+  gap: 0.7rem;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.post-author:hover .post-org { text-decoration: underline; }
+
+.post-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.post-header-text { display: flex; flex-direction: column; min-width: 0; }
+
+.post-org {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-soft);
 }
 
 .post-tag {
+  --tag-color: var(--primary);
   display: inline-block;
-  background: var(--accent-soft);
-  color: var(--primary);
-  font-size: 0.74rem;
+  background: color-mix(in srgb, var(--tag-color) 16%, transparent);
+  color: var(--tag-color);
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  padding: 0.3rem 0.65rem;
+  letter-spacing: 0.02em;
+  padding: 0.15rem 0.55rem;
   border-radius: 999px;
 }
 
-[data-theme="dark"] .post-tag {
-  background: rgba(254, 215, 0, 0.16);
-  color: var(--accent);
+/* --- body text — sits below the media, and opens the post modal on click --- */
+.post-body {
+  padding: 0.9rem 1.1rem 1.1rem;
+  cursor: pointer;
 }
 
 .post-title {
   font-family: var(--font-display);
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.08rem;
+  margin-bottom: 0.35rem;
   color: var(--text);
 }
 
 .post-description {
-  color: var(--text-soft);
-  line-height: 1.6;
-  font-size: 0.95rem;
-  margin-bottom: 0.75rem;
+  color: var(--text);
+  opacity: 0.85;
+  line-height: 1.55;
+  font-size: 0.94rem;
+  white-space: pre-line; /* lets \n\n in data.js description strings render as paragraph breaks */
 }
 
-.post-date {
-  font-size: 0.78rem;
+/* --- media, edge-to-edge like a Facebook attachment, sits above the text --- */
+.post-media-wrap { line-height: 0; }
+
+.post-media {
+  width: 100%;
+  max-height: 460px;
+  object-fit: cover;
+  display: block;
+  background: #000;
+}
+
+/* only images open the post modal on click — videos keep native controls */
+.post-media-wrap img.post-media { cursor: pointer; }
+
+/* ==========================================================================
+   POST MODAL — fullscreen single-post view (opened from a post's image/text)
+   ========================================================================== */
+.posts-modal-content {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+}
+
+.post-modal-media {
+  width: 100%;
+  max-height: 52vh;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.post-modal-media:empty { display: none; }
+
+.post-modal-media img,
+.post-modal-media video {
+  width: 100%;
+  max-height: 52vh;
+  object-fit: contain;
+  display: block;
+}
+
+.post-modal-body {
+  padding: 1.1rem 1.25rem 1.5rem;
+  overflow-y: auto;
+}
+
+.post-modal-body .post-author { margin-bottom: 0.9rem; }
+.post-modal-body .post-title { font-size: 1.2rem; }
+.post-modal-body .post-description { font-size: 0.98rem; }
+
+/* ==========================================================================
+   AUTHOR PAGE — reached by clicking an author on a post
+   ========================================================================== */
+.back-link {
+  background: none;
+  border: none;
   color: var(--text-soft);
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: color 0.15s ease;
+}
+
+.back-link:hover { color: var(--primary); }
+
+.author-header-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.author-page-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.author-header-info h1 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--text);
+}
+
+.author-page-count {
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  margin-top: 0.2rem;
 }
 
 /* ==========================================================================
@@ -660,11 +1147,14 @@ a { color: inherit; }
 }
 
 .snaps-modal-content img {
-  width: 100%;
-  height: 100%;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
   max-height: 78vh;
   object-fit: contain;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
 .modal-caption {
@@ -742,15 +1232,21 @@ a { color: inherit; }
 
   .home-grid { grid-template-columns: 1fr; }
 
-  .gallery-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  .gallery-grid,
+  .scrolls-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 1rem;
   }
 
+  .fullscreen-modal.scrolls-modal { padding: 0; }
+
   .scrolls-container {
     max-width: 100%;
-    height: calc(100vh - 64px - 3rem);
+    height: 100%;
+    border-radius: 0;
   }
+
+  .scroll-item { border-radius: 0; }
 
   .modal-nav { width: 40px; height: 40px; font-size: 1.3rem; }
   .modal-nav.prev { left: 0.6rem; }
@@ -762,6 +1258,9 @@ a { color: inherit; }
   }
 
   .posts-feed { max-width: 100%; }
+
+  .posts-modal-content { max-width: 100%; max-height: 92vh; }
+  .post-modal-media, .post-modal-media img, .post-modal-media video { max-height: 42vh; }
 }
 
 @media (max-width: 600px) {

@@ -18,7 +18,9 @@
       <img src="assets/seal.png" alt="XI-TESLA Seal" class="navbar-seal" />
       <div class="navbar-title">Tesla<span>Archive</span></div>
     </div>
+
     <button class="theme-switch" id="themeSwitch">🌙</button>
+    <span class="navbar-current" aria-hidden="true"></span>
   </nav>
 
   <div class="overlay" id="overlay"></div>
@@ -36,7 +38,12 @@
   <main class="main-content">
     <section class="page active" id="home">
       <div class="home-hero">
-        <img src="assets/seal.png" alt="XI-TESLA Official Seal" class="home-seal" />
+        <span class="hero-spark hero-spark-1" aria-hidden="true"></span>
+        <span class="hero-spark hero-spark-2" aria-hidden="true"></span>
+        <span class="hero-spark hero-spark-3" aria-hidden="true"></span>
+        <div class="home-seal-wrap">
+          <img src="assets/seal.png" alt="XI-TESLA Official Seal" class="home-seal" />
+        </div>
         <div class="home-hero-copy">
           <span class="eyebrow">Welcome to</span>
           <h1 style="color: #fff;">Tesla Archive</h1>
@@ -45,20 +52,32 @@
       </div>
 
       <div class="home-grid">
-        <a href="#" class="nav-link home-shortcut" data-page="snaps">
-          <span class="home-shortcut-icon">📷</span>
-          <h3>Tesla Snaps</h3>
-          <p>Photo moments, Instagram-style.</p>
+        <a href="#" class="nav-link home-shortcut" data-page="snaps" id="homeShortcutSnaps">
+          <div class="home-shortcut-media" id="homeShortcutSnapsMedia"></div>
+          <div class="home-shortcut-overlay"></div>
+          <img src="/assets/icons/cam.png" class="home-shortcut-icon" />
+          <div class="home-shortcut-text">
+            <h3>Tesla Snaps</h3> 
+            <p>Photo moments, Instagram-style.</p>
+          </div>
         </a>
-        <a href="#" class="nav-link home-shortcut" data-page="scrolls">
-          <span class="home-shortcut-icon">🎬</span>
-          <h3>Tesla Scrolls</h3>
-          <p>Short vertical video, TikTok-style.</p>
+        <a href="#" class="nav-link home-shortcut" data-page="scrolls" id="homeShortcutScrolls">
+          <div class="home-shortcut-media" id="homeShortcutScrollsMedia"></div>
+          <div class="home-shortcut-overlay"></div>
+          <img src="/assets/icons/vid.png" class="home-shortcut-icon" />
+          <div class="home-shortcut-text">
+            <h3>Tesla Scrolls</h3>
+            <p>Short vertical video, TikTok-style.</p>
+          </div>
         </a>
         <a href="#" class="nav-link home-shortcut" data-page="posts">
-          <span class="home-shortcut-icon">📰</span>
-          <h3>Tesla Posts</h3>
-          <p>Announcements, sortable by tag.</p>
+          <div class="home-shortcut-media home-shortcut-media--pattern"></div>
+          <div class="home-shortcut-overlay"></div>
+          <img src="/assets/icons/news.png" class="home-shortcut-icon" />
+          <div class="home-shortcut-text">
+            <h3>Tesla Posts</h3>
+            <p>Announcements, sortable by tag.</p>
+          </div>
         </a>
       </div>
 
@@ -92,6 +111,18 @@
     <section class="page" id="snaps"></section>
     <section class="page" id="scrolls"></section>
     <section class="page" id="posts"></section>
+
+    <section class="page" id="author">
+      <button class="back-link" id="authorBack">&larr; Back to Posts</button>
+      <div class="author-header-info">
+        <img id="authorPageAvatar" src="" alt="" class="author-page-avatar" />
+        <div>
+          <h1 id="authorPageName"></h1>
+          <p class="author-page-count" id="authorPageCount"></p>
+        </div>
+      </div>
+      <div class="posts-feed" id="authorFeed"></div>
+    </section>
   </main>
 
   <!-- Lightbox for Snaps -->
@@ -103,6 +134,36 @@
       <p class="modal-caption" id="snapModalCaption"></p>
     </div>
     <button class="modal-nav next" id="snapModalNext" aria-label="Next">&#10095;</button>
+  </div>
+
+  <!-- Fullscreen vertical viewer for Scrolls -->
+  <div class="fullscreen-modal scrolls-modal" id="scrollsModal">
+    <button class="modal-close" id="scrollsModalClose" aria-label="Close">&times;</button>
+    <div class="scrolls-container" id="scrollsViewerContainer"></div>
+  </div>
+
+  <!-- Fullscreen viewer for Posts -->
+  <div class="fullscreen-modal" id="postModal">
+    <button class="modal-close" id="postModalClose" aria-label="Close">&times;</button>
+    <button class="modal-nav prev" id="postModalPrev" aria-label="Previous">&#10094;</button>
+    <div class="modal-content posts-modal-content">
+      <div class="post-modal-media" id="postModalMedia"></div>
+      <div class="post-modal-body">
+        <button class="post-author" type="button" id="postModalAuthor">
+          <img class="post-avatar" id="postModalAvatar" src="" alt="" />
+          <div class="post-header-text">
+            <span class="post-org" id="postModalAuthorName"></span>
+            <span class="post-meta">
+              <span class="post-tag" id="postModalTag"></span>
+              · <span id="postModalDate"></span>
+            </span>
+          </div>
+        </button>
+        <h3 class="post-title" id="postModalTitle"></h3>
+        <p class="post-description" id="postModalDescription"></p>
+      </div>
+    </div>
+    <button class="modal-nav next" id="postModalNext" aria-label="Next">&#10095;</button>
   </div>
 
   <script src="data.js"></script>
