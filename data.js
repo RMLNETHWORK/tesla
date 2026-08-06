@@ -48,7 +48,7 @@ const SNAPS = [
 const SCROLLS = [
   {
     id: 'scroll-demo-1',
-    video: 'assets/demo/scroll-1.mp4',
+    video: 'assets/demo/video.mp4',
     caption: 'Demo scroll #1 — swap in a real vertical video.',
     date: '2026-08-02',
   },

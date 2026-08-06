@@ -7,6 +7,13 @@
   src: url(/assets/caros/cretype\ \ Caros.otf);
 }
 
+* {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-focus-ring-color: transparent !important;
+  outline: none !important;
+}
+
+
 :root {
   --primary: #4a0868;
   --primary-soft: #6b1f94;
@@ -193,7 +200,11 @@ a { color: inherit; }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.page-head { margin-bottom: 1.75rem; }
+.page-head {
+  margin-bottom: 1.75rem;
+  display: block;
+  position: fixed;
+}
 
 .page-head h1,
 .page h1 {
@@ -501,19 +512,6 @@ a { color: inherit; }
 
 .scroll-caption .gallery-date {
   color: rgba(255,255,255,0.7);
-}
-
-.scroll-counter {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(0,0,0,0.4);
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  backdrop-filter: blur(4px);
 }
 
 .scrolls-hint {

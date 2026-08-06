@@ -21,10 +21,10 @@ const root = document.documentElement;
 function applyTheme(theme) {
   if (theme === 'dark') {
     root.setAttribute('data-theme', 'dark');
-    themeSwitch.textContent = '☀️ Light Mode';
+    themeSwitch.textContent = '☀️';
   } else {
     root.removeAttribute('data-theme');
-    themeSwitch.textContent = '🌙 Dark Mode';
+    themeSwitch.textContent = '🌙';
   }
 }
 
@@ -208,7 +208,6 @@ function renderScrolls() {
     <div class="scroll-item" data-index="${i}">
       <video src="${escapeHtml(scroll.video)}" loop muted playsinline preload="metadata"></video>
       <span class="scroll-play-icon">&#9654;</span>
-      <span class="scroll-counter">${i + 1} / ${items.length}</span>
       <div class="scroll-caption">
         <p>${escapeHtml(scroll.caption)}</p>
         <span class="gallery-date">${formatDate(scroll.date)}</span>
