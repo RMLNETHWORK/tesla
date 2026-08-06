@@ -1,0 +1,5 @@
+/version.json
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache

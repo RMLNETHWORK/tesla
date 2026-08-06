@@ -1,3 +1,5 @@
+let CURRENT_VERSION = "dev";
+
 // ---- Helpers ----
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -692,3 +694,29 @@ async function openSharedPostFromUrl() {
 }
 
 openSharedPostFromUrl();
+
+async function checkForUpdates() {
+    try {
+        const res = await fetch(`/version.json?t=${Date.now()}`);
+
+        const data = await res.json();
+
+        if (CURRENT_VERSION === "dev") {
+            CURRENT_VERSION = data.version;
+            return;
+        }
+
+        if (CURRENT_VERSION !== data.version) {
+            if (confirm("A new version of Tesla Archive is available.\n\nRefresh now?")) {
+                location.reload();
+            }
+        }
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+checkForUpdates();
+
+setInterval(checkForUpdates, 60000);
