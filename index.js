@@ -353,6 +353,8 @@ document.addEventListener('keydown', (e) => {
 // ---------------------------------------------------------------------------
 let activePostTag = 'All';
 
+const SHARE_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>';
+
 function getAuthor(id) {
   return (typeof AUTHORS === 'object' && AUTHORS[id]) || { name: 'Unknown Author', avatar: 'assets/seal.png' };
 }
@@ -363,6 +365,73 @@ function getAuthor(id) {
 // to the author's avatar, then the default seal, if the post has none set.
 function postAvatar(post, author) {
   return post.avatar || author.avatar || 'assets/seal.png';
+}
+
+// ---- Share link helpers — Posts only; Snaps/Scrolls have no share UI ----
+
+// Builds an absolute, shareable link to one specific post as `?post=<id>`
+// on the current page. Built from `location`, not a hardcoded origin, so it
+// resolves correctly whether the site lives at a domain root or a subpath
+// (e.g. a GitHub Pages project site).
+function getPostShareUrl(post) {
+  const url = new URL(location.href);
+  url.search = '';
+  url.hash = '';
+  url.searchParams.set('post', post.id);
+  return url.toString();
+}
+
+let toastTimer = null;
+function showToast(message) {
+  const toast = document.getElementById('shareToast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+async function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_) {
+      // fall through to the legacy path below
+    }
+  }
+  // Legacy fallback for browsers/contexts without the async Clipboard API
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (_) { ok = false; }
+  document.body.removeChild(textarea);
+  return ok;
+}
+
+// Native share sheet on mobile (Web Share API); falls back to copying the
+// link to the clipboard everywhere else, with a toast confirming it.
+async function sharePost(post) {
+  const url = getPostShareUrl(post);
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: post.title, text: post.description, url });
+    } catch (err) {
+      if (err && err.name === 'AbortError') return; // user closed the share sheet — not an error
+      const copied = await copyToClipboard(url);
+      showToast(copied ? 'Link copied!' : 'Could not copy link');
+    }
+    return;
+  }
+
+  const copied = await copyToClipboard(url);
+  showToast(copied ? 'Link copied!' : 'Could not copy link');
 }
 
 // Shared markup for a single post card — used on both the Posts feed and an
@@ -390,6 +459,7 @@ function postCardHtml(post) {
             </span>
           </div>
         </button>
+        <button class="post-share" type="button" aria-label="Share this post" title="Share this post">${SHARE_ICON_SVG}</button>
       </div>
       ${media ? `<div class="post-media-wrap">${media}</div>` : ''}
       <div class="post-body">
@@ -413,6 +483,13 @@ function bindPostCardEvents(container, items) {
     if (img) img.addEventListener('click', () => openPostModal(items, i));
     const body = card.querySelector('.post-body');
     if (body) body.addEventListener('click', () => openPostModal(items, i));
+    const shareBtn = card.querySelector('.post-share');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // don't let the click bubble to anything else on the card
+        sharePost(items[i]);
+      });
+    }
   });
 }
 
@@ -501,15 +578,28 @@ function updatePostModal() {
   postModalTitle.textContent = post.title;
   postModalDescription.textContent = post.description;
   postModalAuthorBtn.dataset.author = post.author || '';
+
+  // keep the address bar pointed at whichever post is currently showing —
+  // covers opening the modal and stepping prev/next through it — so
+  // copying the URL bar directly also works, not just the share button
+  history.replaceState(null, '', getPostShareUrl(post));
 }
 
 function closePostModal() {
   if (!postModal.classList.contains('active')) return;
   postModal.classList.remove('active');
   postModalMedia.innerHTML = ''; // stop any playing video
+
+  const clean = new URL(location.href);
+  clean.search = '';
+  history.replaceState(null, '', clean.toString());
 }
 
 document.getElementById('postModalClose').addEventListener('click', closePostModal);
+document.getElementById('postModalShare').addEventListener('click', () => {
+  const post = postModalItems[postModalIndex];
+  if (post) sharePost(post);
+});
 document.getElementById('postModalPrev').addEventListener('click', () => {
   postModalIndex = (postModalIndex - 1 + postModalItems.length) % postModalItems.length;
   updatePostModal();
@@ -569,3 +659,31 @@ function goToAuthorPage(authorId) {
 document.getElementById('authorBack').addEventListener('click', () => {
   document.querySelector('.nav-link[data-page="posts"]').click();
 });
+
+// ---------------------------------------------------------------------------
+// SHARED POST LINKS — if the page was opened via a `?post=<id>` URL (see
+// sharePost() above), land straight on the Posts page with that post open,
+// instead of the usual Home. Unknown/removed ids are ignored quietly.
+// ---------------------------------------------------------------------------
+async function openSharedPostFromUrl() {
+  const sharedId = new URLSearchParams(location.search).get('post');
+  if (!sharedId) return;
+
+  const post = POSTS.find(p => p.id === sharedId);
+  if (!post) return;
+
+  activePostTag = 'All'; // guarantee the shared post is actually in the feed
+  await loadSection('posts');
+  renderPosts();
+
+  pages.forEach(p => p.classList.remove('active'));
+  document.getElementById('posts').classList.add('active');
+  navLinks.forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('.nav-link[data-page="posts"]').forEach(l => l.classList.add('active'));
+
+  const items = [...POSTS].sort(byNewestFirst);
+  const index = items.findIndex(p => p.id === sharedId);
+  if (index !== -1) openPostModal(items, index);
+}
+
+openSharedPostFromUrl();

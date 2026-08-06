@@ -931,16 +931,21 @@ a { color: inherit; }
 
 /* --- header: avatar, author name, tag + timestamp, like Facebook's post header --- */
 .post-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.9rem 1.1rem;
 }
 
-/* the whole header row is a button — clicking the author opens their page,
-   separate from clicking the media/text which opens the post itself */
+/* the author row is its own button — clicking it opens their page, separate
+   from clicking the media/text (opens the post) or the share icon beside it */
 .post-author {
   display: flex;
   align-items: center;
   gap: 0.7rem;
   width: 100%;
+  flex: 1;
+  min-width: 0;
   background: none;
   border: none;
   padding: 0;
@@ -952,6 +957,33 @@ a { color: inherit; }
 }
 
 .post-author:hover .post-org { text-decoration: underline; }
+
+/* small icon-only button, sits opposite the author row in the same header
+   row — copies the link to this post (or opens the OS share sheet on
+   mobile) without needing to open the post first */
+.post-share {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.post-share svg { width: 16px; height: 16px; }
+
+.post-share:hover {
+  background: color-mix(in srgb, var(--primary) 12%, var(--bg));
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  transform: scale(1.06);
+}
 
 .post-avatar {
   width: 42px;
@@ -1138,7 +1170,7 @@ a { color: inherit; }
 
 .modal-content {
   position: relative;
-  width: 100%;
+  width: fit-content;
   max-width: 90vw;
   max-height: 85vh;
   display: flex;
@@ -1187,6 +1219,31 @@ a { color: inherit; }
 
 .modal-close:hover { background: rgba(255,255,255,0.25); }
 
+/* copies/share-sheets the current post's link — same visual family as
+   modal-close, mirrored to the opposite (top-left) corner. Only ever
+   rendered inside the Posts modal; Snaps/Scrolls have no share affordance. */
+.modal-share {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  z-index: 2001;
+}
+
+.modal-share svg { width: 19px; height: 19px; }
+
+.modal-share:hover { background: rgba(255,255,255,0.25); }
+
 .modal-nav {
   position: absolute;
   top: 50%;
@@ -1209,6 +1266,34 @@ a { color: inherit; }
 .modal-nav:hover { background: rgba(255,255,255,0.25); }
 .modal-nav.prev { left: 1.5rem; }
 .modal-nav.next { right: 1.5rem; }
+
+/* ==========================================================================
+   TOAST — brief confirmation after copying a share link
+   ========================================================================== */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 2rem;
+  transform: translateX(-50%) translateY(12px);
+  background: rgba(20, 16, 28, 0.94);
+  color: #fff;
+  padding: 0.65rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 3000;
+  max-width: 88vw;
+  text-align: center;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 
 /* ==========================================================================
    MOBILE
@@ -1256,6 +1341,12 @@ a { color: inherit; }
     width: 36px; height: 36px; font-size: 1.25rem;
     top: 1rem; right: 1rem;
   }
+
+  .modal-share {
+    width: 36px; height: 36px;
+    top: 1rem; left: 1rem;
+  }
+  .modal-share svg { width: 17px; height: 17px; }
 
   .posts-feed { max-width: 100%; }
 
