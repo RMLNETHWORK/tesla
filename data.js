@@ -28,6 +28,12 @@ const SNAPS = [
     caption: 'Lakas ni Salamatin guys',
     date: '2026-08-06',
   },
+  {
+    id: 'snap2',
+    image: 'assets/snaps/snap2.jpg',
+    caption: 'Pogi is Al',
+    date: '2026-08-06',
+  },
 ];
 
 // ---------------------------------------------------------------------------
