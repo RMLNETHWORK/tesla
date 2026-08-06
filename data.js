@@ -22,12 +22,12 @@
 // SNAPS — one photo + short caption each
 // ---------------------------------------------------------------------------
 const SNAPS = [
-  /* {
-    id: 'snap-demo-1',
-    image: 'assets/demo/snap-1.jpg',
-    caption: 'Demo snap — replace with a real photo in data.js.',
-    date: '2026-08-01',
-  }, */
+  {
+    id: 'snap1',
+    image: 'assets/snaps/snap1.jpg',
+    caption: 'Lakas ni Salamatin guys',
+    date: '2026-08-06',
+  },
 ];
 
 // ---------------------------------------------------------------------------
