@@ -443,21 +443,33 @@ async function copyToClipboard(text) {
 
 // Native share sheet on mobile (Web Share API); falls back to copying the
 // link to the clipboard everywhere else, with a toast confirming it.
+//
+// Deliberately does NOT hand over the post's full description as share
+// text — that's the whole article body, and most share targets (Messages,
+// X, etc.) paste "text" straight into the message, dumping the entire
+// post where a short blurb belongs. Instead we build one friendly line
+// naming the author and the title.
+function getShareText(post) {
+  const author = getAuthor(post.author);
+  return `${author.name} on TeslaArchive: "${post.title}"`;
+}
+
 async function sharePost(post) {
   const url = getPostShareUrl(post);
+  const text = getShareText(post);
 
   if (navigator.share) {
     try {
-      await navigator.share({ title: post.title, text: post.description, url });
+      await navigator.share({ title: post.title, text, url });
     } catch (err) {
       if (err && err.name === 'AbortError') return; // user closed the share sheet — not an error
-      const copied = await copyToClipboard(url);
+      const copied = await copyToClipboard(`${text}\n${url}`);
       showToast(copied ? 'Link copied!' : 'Could not copy link');
     }
     return;
   }
 
-  const copied = await copyToClipboard(url);
+  const copied = await copyToClipboard(`${text}\n${url}`);
   showToast(copied ? 'Link copied!' : 'Could not copy link');
 }
 
