@@ -144,13 +144,16 @@
 
   <!-- Fullscreen viewer for Posts -->
   <div class="fullscreen-modal" id="postModal">
-    <button class="modal-close" id="postModalClose" aria-label="Close">&times;</button>
-    <button class="modal-share" id="postModalShare" aria-label="Share this post" title="Share this post">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4" /><path d="M7 9l5-5 5 5" /><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" /></svg>
-    </button>
+    <button class="modal-nav prev" id="postModalPrev" aria-label="Previous" style="display: none;">&#10094;</button>
     <div class="modal-content posts-modal-content">
       <div class="post-modal-media" id="postModalMedia"></div>
       <div class="post-modal-body">
+        <div class="post-modal-actions">
+          <button class="modal-share" id="postModalShare" aria-label="Share this post" title="Share this post">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4" /><path d="M7 9l5-5 5 5" /><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" /></svg>
+          </button>
+          <button class="modal-close" id="postModalClose" aria-label="Close">&times;</button>
+        </div>
         <button class="post-author" type="button" id="postModalAuthor">
           <img class="post-avatar" id="postModalAvatar" src="" alt="" />
           <div class="post-header-text">
@@ -166,6 +169,7 @@
         <p class="post-description" id="postModalDescription"></p>
       </div>
     </div>
+    <button class="modal-nav next" id="postModalNext" aria-label="Next" style="display: none;">&#10095;</button>
   </div>
 
   <div class="toast" id="shareToast" role="status" aria-live="polite"></div>

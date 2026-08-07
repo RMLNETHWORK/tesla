@@ -1097,11 +1097,43 @@ a { color: inherit; }
 .post-modal-body {
   padding: 1.1rem 1.25rem 1.5rem;
   overflow-y: auto;
+  width: fit-content;
+  max-width: 50vw;
 }
 
 .post-modal-body .post-author { margin-bottom: 0.9rem; }
 .post-modal-body .post-title { font-size: 1.2rem; }
 .post-modal-body .post-description { font-size: 0.98rem; }
+
+/* close/share live inside the (light) body card now, not floating over the
+   dark backdrop, so they get the card's own icon-button treatment instead
+   of the dark-overlay style shared by modal-close/modal-nav elsewhere. */
+.post-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.post-modal-actions .modal-close,
+.post-modal-actions .modal-share {
+  position: static;
+  width: 34px;
+  height: 34px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  z-index: auto;
+}
+
+.post-modal-actions .modal-close:hover,
+.post-modal-actions .modal-share:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.post-modal-actions .modal-close { font-size: 1.25rem; }
+.post-modal-actions .modal-share svg { width: 16px; height: 16px; }
 
 /* ==========================================================================
    AUTHOR PAGE — reached by clicking an author on a post
@@ -1298,6 +1330,16 @@ a { color: inherit; }
 /* ==========================================================================
    MOBILE
    ========================================================================== */
+
+@media (max-width: 1000px) {
+  .post-modal-body {
+    padding: 1.1rem 1.25rem 1.5rem;
+    overflow-y: auto;
+    width: fit-content;
+    max-width: 100vw;
+  }
+}
+
 @media (max-width: 850px) {
   .menu-toggle { display: inline-block; }
 
