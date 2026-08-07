@@ -63,9 +63,9 @@ const AUTHORS = {
   'admin': {
     name: 'Tesla Archive',
   },
-  'author-demo-2': {
-    name: 'Maria Santos',
-    // no avatar set — falls back to the default seal icon
+  'Ash': {
+    name: 'Ash',
+    avatar: '/assets/anon.webp',
   },
 };
 
@@ -100,11 +100,20 @@ const POSTS = [
     date: '2026-08-03',
   }, */
   {
-    id: 'post1',
+    id: 'effcom/postA',
     title: 'EffCom Performance Task Update',
     description: 'Submissions for the Performance Task 1 in Effective Communication is now open, you can now send them to Rolance Labayog.\nPlease submit your work before the deadline [DL: 08-09-2026 @ 09:30 PM].',
     tag: 'PT - EffCom',
     author: 'admin',
     date: '2026-08-06',
+  },
+  {
+    id: 'effcom/post1',
+    title: 'Bittersweet Lessons',
+    description: 'There are moments in life when we expect things to work out, only to realize that reality has different plans. Recently, I experienced a situation that taught me an unexpected lesson about acceptance and growth. I entered a connection hoping it would become something meaningful, believing that effort and sincerity would be enough.\n\nAs time passed, I realized that our feelings were not completely aligned. Although it hurt, we chose honesty and respect over forcing something that was not meant to be. That moment became a turning point for me. I learned that not every meaningful connection is meant to last forever, and sometimes people enter our lives to teach us lessons rather than stay permanently.\n\nLooking back, I understand that letting go is not a sign of failure. It is a sign of maturity and self-respect. While the experience was bittersweet, it helped me grow stronger, become more self-aware, and appreciate the value of acceptance. Sometimes, the endings we never wanted become the lessons we need the most.',
+    tag: 'PT - EffCom',
+    author: 'Ash',
+    date: '2026-08-07',
+    time: '07:59 AM',
   },
 ];

@@ -552,6 +552,7 @@ const postModalAvatar = document.getElementById('postModalAvatar');
 const postModalAuthorName = document.getElementById('postModalAuthorName');
 const postModalTag = document.getElementById('postModalTag');
 const postModalDate = document.getElementById('postModalDate');
+const postModalTime = document.getElementById('postModalTime');
 const postModalTitle = document.getElementById('postModalTitle');
 const postModalDescription = document.getElementById('postModalDescription');
 const postModalAuthorBtn = document.getElementById('postModalAuthor');
@@ -580,6 +581,7 @@ function updatePostModal() {
   postModalTag.textContent = post.tag;
   postModalTag.style.setProperty('--tag-color', color);
   postModalDate.textContent = formatDate(post.date);
+  postModalTime.textContent = post.time;
   postModalTitle.textContent = post.title;
   postModalDescription.textContent = post.description;
   postModalAuthorBtn.dataset.author = post.author || '';
