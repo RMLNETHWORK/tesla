@@ -1,4 +1,26 @@
 // ---- Helpers ----
+
+// Reads the version stamp that functions/_middleware.js injects into
+// <head> on every deploy (the current git commit SHA). Returns null when
+// running somewhere that stamp isn't present — a plain static host, or a
+// local `python3 -m http.server` with no Pages Functions running — in
+// which case withVersion() below is a harmless no-op and the site behaves
+// exactly as it did before this change.
+function assetVersion() {
+  const meta = document.querySelector('meta[name="asset-version"]');
+  return meta ? meta.content : null;
+}
+
+// Appends the current deploy's version stamp to a same-origin URL, so a
+// fetch always targets the exact bytes that shipped with today's deploy —
+// never a copy the browser cached from a previous one.
+function withVersion(path) {
+  const v = assetVersion();
+  if (!v) return path;
+  const separator = path.includes('?') ? '&' : '?';
+  return `${path}${separator}v=${v}`;
+}
+
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -92,7 +114,7 @@ async function loadSection(pageId) {
   if (!section || pageId === 'home') return; // home content is inline
 
   try {
-    const response = await fetch(`sections/${pageId}.html`);
+    const response = await fetch(withVersion(`sections/${pageId}.html`));
 
     if (!response.ok) throw new Error(`Failed to load ${pageId}`);
 

@@ -93,6 +93,9 @@ sections/
   scrolls.html          empty feed container, filled in by index.js
   posts.html            empty feed + filter container, filled in by index.js
 assets/                images, fonts, icons, and your media files
+functions/
+  _middleware.js        Cloudflare Pages Function — see "Cache-busting" below
+_headers               Cache-Control rules for Cloudflare Pages
 ```
 
 ### How a page navigation works
@@ -109,7 +112,50 @@ Sidebar/home links carry a `data-page` attribute. Clicking one:
 Dark/light toggle lives in the top navbar. Preference is saved in
 `localStorage` per visitor; defaults to light on first visit.
 
+## Cache-busting
+
+The site is a handful of files with no build step, so a browser can easily
+end up holding onto a stale `index.js` or `index.css` from a previous visit
+— especially on repeat visitors, since browsers cache aggressively by
+default. `functions/_middleware.js` fixes this with no manual steps:
+
+1. Cloudflare Pages sets `CF_PAGES_COMMIT_SHA` automatically on every
+   deploy — the current build's git commit hash. No config, nothing to
+   remember to bump.
+2. The middleware intercepts requests for the page shell (`/` and
+   `/index.html`) and rewrites the `<link href="index.css">` and
+   `<script src="...">` tags to append `?v=<commit-sha>`, and drops a
+   `<meta name="asset-version">` tag into `<head>` carrying the same value.
+3. `index.js` reads that meta tag (`withVersion()` near the top of the
+   file) and appends the same `?v=` to its own `fetch()` calls for
+   `sections/*.html`.
+4. `_headers` tells the browser to cache everything (`/*`) essentially
+   forever (`max-age=31536000, immutable`) — safe, because a new deploy
+   means a new `?v=` and therefore a *new URL*, which can never collide
+   with something already in cache. Only the shell itself (`/`,
+   `/index.html`) and `/sections/*` stay `no-cache`, since those are the
+   small entry points that need to always be revalidated.
+
+Net effect: push a change, and every visitor gets it on their very next
+load — no hard-refreshing, no cache-clearing, no version numbers to bump
+by hand.
+
+**Media files** (`assets/snaps/*`, `assets/scrolls/*`, `assets/posts/*`,
+etc.) are deliberately *not* versioned this way — per the workflow above,
+a new post always points at a new filename, so each file's URL is already
+unique and safe to cache forever. If you ever reuse a filename to replace
+existing media, rename it instead so viewers aren't served the old cached
+copy.
+
+**Portability note:** this mechanism is Cloudflare Pages–specific (it
+relies on Pages Functions and `CF_PAGES_COMMIT_SHA`). Deployed elsewhere
+(Netlify, GitHub Pages, a plain static host), `functions/` is simply
+ignored, `asset-version` is never set, and the site works exactly as
+before — you just lose the automatic cache-busting on that host.
+
 ## Deploying
 
 Any static host works (Cloudflare Pages, Netlify, GitHub Pages). No build
-command needed — just point the host at this folder as the publish directory.
+command needed — just point the host at this folder as the publish
+directory. The cache-busting described above only activates on Cloudflare
+Pages; other hosts serve the same files without it.
