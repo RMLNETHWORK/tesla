@@ -71,6 +71,10 @@ const AUTHORS = {
     name: 'Your Name chaar',
     avatar: '/assets/anon.webp',
   },
+  'Daniel': {
+    name: 'Daniel',
+    avatar: '/assets/anon.webp',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -134,7 +138,7 @@ const POSTS = [
     title: "Flat Tires and Fast Friends: A Commuter's Lesson on the Way to Catanduanes National High School",
     description: 'I was rushing to get to school on a tricycle one busy Monday morning on my way to Catanduanes National High School. My anxiety spiked as the minutes ticked away, knowing that a single traffic delay could compromise my punctuality for my first period. The morning rush hour surrounded me with a chaotic blur of engines, pedestrians, and the pressing weight of academic expectations.\n\nMidway through the trip, the vehicle sputtered and ground to an abrupt halt due to a flat tire, creating an immediate obstacle that threatened to derail my schedule completely. The driver turned around, a look of exhaustion on his face, and hesitantly asked if we could step out and help push the heavy vehicle toward the nearest vulcanizing shop. Instead of irritation taking over, a collective, silent understanding passed among us strangers trapped in the same predicament.\n\nAs I planted my hands against the back of the tricycle and pushed alongside my fellow passengers, a profound shift in perspective occurred within me. I realized that even small acts of teamwork can turn a frustrating delay into a moment of genuine kindness, teaching me that human connection often emerges precisely when our structured plans fall apart.',
     tag: 'PT - EffCom',
-    author: '[no name]',
+    author: 'Daniel',
     date: '2026-08-07',
     time: '10:02 PM',
   },
