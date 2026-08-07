@@ -67,6 +67,10 @@ const AUTHORS = {
     name: 'Ash',
     avatar: '/assets/anon.webp',
   },
+  'Your Name chaar': {
+    name: 'Your Name chaar',
+    avatar: '/assets/anon.webp',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -115,5 +119,23 @@ const POSTS = [
     author: 'Ash',
     date: '2026-08-07',
     time: '07:59 AM',
+  },
+  {
+    id: 'effcom/post2',
+    title: '🌟 Finding Joy in the Little Things',
+    description: 'Life is a journey filled with lessons, challenges, and memorable experiences. Every day gives me a chance to learn something new, improve myself, and appreciate the people around me.\n\nAs a student, I work hard to balance my studies and personal life. I attend my classes, complete my assignments, and spend time with my family and friends. During my free time, I enjoy playing basketball, riding my bike, and playing mobile games. These simple activities help me relax and stay motivated. Although there are days when I face difficulties, I remind myself that every challenge is an opportunity to grow stronger.\n\nLooking back on my experiences, I realize that every success and every mistake has helped shape who I am today. I am grateful for the support of my family, friends, and teachers who encourage me to keep moving forward. As I continue my journey, I will work hard, stay positive, and never stop believing in my    dreams. Every day is a new chance to become a better version of myself.\n\n"Believe in yourself, work hard, and great things will happen."\n\n❤️ Thank you for reading!',
+    tag: 'PT - EffCom',
+    author: 'Your Name chaar',
+    date: '2026-08-07',
+    time: '01:17 PM',
+  },
+  {
+    id: 'effcom/post3',
+    title: "Flat Tires and Fast Friends: A Commuter's Lesson on the Way to Catanduanes National High School",
+    description: 'I was rushing to get to school on a tricycle one busy Monday morning on my way to Catanduanes National High School. My anxiety spiked as the minutes ticked away, knowing that a single traffic delay could compromise my punctuality for my first period. The morning rush hour surrounded me with a chaotic blur of engines, pedestrians, and the pressing weight of academic expectations.\n\nMidway through the trip, the vehicle sputtered and ground to an abrupt halt due to a flat tire, creating an immediate obstacle that threatened to derail my schedule completely. The driver turned around, a look of exhaustion on his face, and hesitantly asked if we could step out and help push the heavy vehicle toward the nearest vulcanizing shop. Instead of irritation taking over, a collective, silent understanding passed among us strangers trapped in the same predicament.\n\nAs I planted my hands against the back of the tricycle and pushed alongside my fellow passengers, a profound shift in perspective occurred within me. I realized that even small acts of teamwork can turn a frustrating delay into a moment of genuine kindness, teaching me that human connection often emerges precisely when our structured plans fall apart.',
+    tag: 'PT - EffCom',
+    author: '[no name]',
+    date: '2026-08-07',
+    time: '10:02 PM',
   },
 ];

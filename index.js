@@ -26,8 +26,31 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+// Converts a "7:59 AM" / "07:59 AM" style time-of-day into 24-hour
+// "HH:MM" so it can be spliced into an ISO datetime string below.
+function parseTimeOfDay(timeStr) {
+  const match = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(String(timeStr).trim());
+  if (!match) return '00:00';
+  let [, hours, minutes, meridiem] = match;
+  hours = parseInt(hours, 10);
+  if (/PM/i.test(meridiem) && hours !== 12) hours += 12;
+  if (/AM/i.test(meridiem) && hours === 12) hours = 0;
+  return `${String(hours).padStart(2, '0')}:${minutes}`;
+}
+
+// Snaps/Scrolls only carry a date; Posts also carry a time-of-day string
+// (e.g. '07:59 AM'). Sorting by date alone ties everything published on
+// the same day and falls back to array order, which can put an earlier
+// post above a later one from the same day. Folding in the time (when
+// present) breaks that tie correctly; items without one just sort as
+// midnight, i.e. unchanged relative to each other.
+function getTimestamp(item) {
+  const time = item.time ? parseTimeOfDay(item.time) : '00:00';
+  return new Date(`${item.date}T${time}`).getTime();
+}
+
 function byNewestFirst(a, b) {
-  return new Date(b.date) - new Date(a.date);
+  return getTimestamp(b) - getTimestamp(a);
 }
 
 function escapeHtml(str) {
