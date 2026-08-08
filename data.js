@@ -75,6 +75,10 @@ const AUTHORS = {
     name: 'Daniel',
     avatar: '/assets/anon.webp',
   },
+  'Shan': {
+    name: 'Shan',
+    avatar: '/assets/anon.webp',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -141,5 +145,14 @@ const POSTS = [
     author: 'Daniel',
     date: '2026-08-07',
     time: '10:02 PM',
+  },
+  {
+    id: 'effcom/post4',
+    title: "When They Left for 5 Days ",
+    description: 'My stepdad just got home from abroad.\nI was happy. 4 days later, that happiness turned into “oh...”\n\nBecause after those 4 days, he and my mom started packing. They had to go to Tagaytay to attend my stepdad’s sibling’s wedding.\n\nI knew about it. Mom told me even before my stepdad arrived. “5 days lang kami dun,” she said.\nAnd it wasn’t like I was completely alone, ate and our cousin were with us too. So in my head, “Kaya namin ‘to. Hindi naman mahirap.”\n\nThe first few days were actually fine.\nIt was just me and my 3 siblings at home. Quiet, but manageable.\nFunny thing is, I even learned how to cook because of it. Adobo. Pork afritada. Sinigang. Gulay.\nI was kinda proud of myself. “Look at me, adulting.”\n\nBut then reality hit.\n\nIt stopped being “okay” when everything started piling up at the same time.\nCook. Wash dishes. Clean the house.\nThen drop everything and get my sibling ready for school.\nBack to back. No pause button.\n\nThat’s when I realized it:\nMahirap pala talaga mag-isa.\nEven when you’re not technically alone, the responsibility makes you feel like you’re carrying everything by yourself.\n\nI don’t regret learning. I don’t regret stepping up.\nBut I also didn’t expect how heavy 5 days could feel.',
+    tag: 'PT - EffCom',
+    author: 'Shan',
+    date: '2026-08-08',
+    time: '10:55 AM',
   },
 ];
