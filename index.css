@@ -1134,6 +1134,7 @@ a { color: inherit; }
 .post-modal-actions .modal-close,
 .post-modal-actions .modal-share {
   position: static;
+  margin-bottom: -120px;
   width: 34px;
   height: 34px;
   background: var(--bg);
