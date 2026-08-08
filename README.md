@@ -199,7 +199,8 @@ Post, one generated card":
   `<title>`/canonical to match) whenever the requested URL is a Snaps,
   Scrolls, or Posts page or permalink. `/` and anything unrecognized keep
   the static default tags in `index.html`'s `<head>` (falls back to
-  `assets/seal.png`).
+  `assets/og-home.png` — a hand-built 1200×630 card styled after the
+  home hero, not the flat seal; see `build/make_og_home.py`).
 - `functions/_shared/content.js` — parsing helpers both of the above
   import. `data.js` is plain hand-authored JS, not JSON, and Workers won't
   `eval()` strings — so this walks the text by hand (strip comments,
@@ -210,7 +211,7 @@ Post, one generated card":
 
 | URL you shared | Card shows |
 |---|---|
-| `/` (home) | static seal, default title |
+| `/` (home) | hero-styled `og-home.png` card, default title |
 | `/snaps`, `/snaps/?snap=<token>` | "Tesla Snaps" + that snap's caption, if the token resolves |
 | `/scrolls`, `/scrolls/?scroll=<token>` | "Tesla Scrolls" + that scroll's caption |
 | `/posts`, `/post/?post=<token>` | that post's own author avatar/name, colored tag pill, date, title, and a trimmed excerpt — or the "Tesla Posts" default if no token/it doesn't resolve |

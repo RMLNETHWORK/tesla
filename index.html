@@ -25,17 +25,30 @@
      assets/icons/) plus a specific title/description whenever the URL
      is a Snaps, Scrolls, or Posts page or permalink — same pattern as
      ChromaX's ?c=HEX open graph swap, just keyed off the category/route
-     instead of a query color. See README.md → "Sharing previews". -->
+     instead of a query color. See README.md → "Sharing previews".
+
+     og-home.png (1200x630, assets/) is a static card styled after the
+     home hero — same background photo, gradient wash, diagonal grain,
+     seal, and copy as .home-hero in index.css, baked into one flat
+     image once rather than generated per-request like og.png.js does
+     for Snaps/Scrolls/Posts. The home page's content never changes
+     item-to-item the way a post does, so there's nothing dynamic here
+     worth spending a Function invocation on — a plain static asset is
+     simpler and cacheable like any other file in assets/. Regenerate
+     it (build/make_og_home.py) if the hero copy or design ever changes. -->
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Tesla Archive" />
 <meta property="og:description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
-<meta property="og:image" content="/assets/seal.png" />
+<meta property="og:image" content="/assets/og-home.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:type" content="image/png" />
 <meta property="og:url" content="/" />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Tesla Archive" />
 <meta name="twitter:description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
-<meta name="twitter:image" content="/assets/seal.png" />
+<meta name="twitter:image" content="/assets/og-home.png" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -80,7 +93,7 @@
         <div class="home-hero-copy">
           <span class="eyebrow">Welcome to</span>
           <h1 style="color: #fff;">Tesla Archive</h1>
-          <p>Your central place for Posts, Snaps, and Scrolls. Use the sidebar to jump into any section.</p>
+          <p>Your central place for Posts, Snaps, and Scrolls. By 11-Tesla S.Y. 2026-2027.</p>
         </div>
       </div>
 

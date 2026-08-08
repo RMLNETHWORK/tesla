@@ -71,7 +71,11 @@ async function buildOgOverride(url) {
   const pageUrl = `${url.origin}${url.pathname}${url.search}`;
 
   if (!category) {
-    return { ogImage: `${url.origin}/assets/seal.png`, pageUrl, title: null, description: null };
+    // Same asset as index.html's static default (see the comment there) —
+    // og:image:width/height/type in index.html apply here unchanged too,
+    // since every image this site serves for OG purposes (this one and
+    // every og.png.js output) is 1200x630 PNG.
+    return { ogImage: `${url.origin}/assets/og-home.png`, pageUrl, title: null, description: null };
   }
 
   const meta = CATEGORY_META[category];
