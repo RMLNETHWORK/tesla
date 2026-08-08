@@ -2,11 +2,22 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import math
 
 W, H = 1200, 630
-ASSETS = "/home/claude/teslahub/teslahubZipped/assets"
-FONTS = f"{ASSETS}/caros"
+import os
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSETS = os.path.join(SCRIPT_DIR, "..", "assets")
+FONTS = os.path.join(ASSETS, "caros")
+
+import glob
 
 def font(name, size):
-    return ImageFont.truetype(f"{FONTS}/cretype  Caros {name}.otf", size)
+    pattern = os.path.join(FONTS, f"*Caros*{name}*.otf")
+    matches = glob.glob(pattern)
+    if not matches:
+        raise FileNotFoundError(
+            f"No font file matching '*Caros*{name}*.otf' in {FONTS}\n"
+            f"Files actually there: {os.listdir(FONTS) if os.path.isdir(FONTS) else 'FONTS folder not found'}"
+        )
+    return ImageFont.truetype(matches[0], size)
 
 def layer():
     return Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -165,7 +176,7 @@ title_y = pill_y + pill_h + 22
 draw.text((text_start_x, title_y), "Tesla Archive", font=title_font, fill=(255, 255, 255, 255))
 
 desc_font = font("Medium", 27)
-desc_text = "Your central place for Posts, Snaps, and Scrolls. Use the sidebar to jump into any section."
+desc_text = "Your central place for Posts, Snaps, and Scrolls. By 11-Tesla S.Y. 2026-2027."
 max_width = W - text_start_x - 70
 
 def wrap_text(dr, text, fnt, max_w):
