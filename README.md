@@ -179,6 +179,39 @@ destination and don't get their own URL, same as before.
 Dark/light toggle lives in the top navbar. Preference is saved in
 `localStorage` per visitor; defaults to light on first visit.
 
+## Sharing previews (Open Graph / Twitter Card)
+
+When a link to this site is pasted into Slack/Discord/iMessage/Twitter/etc,
+`functions/_middleware.js` rewrites the page's `og:image`, `og:title`,
+`og:description`, `og:url`, and `<title>` in-flight — same approach as
+ChromaX's `?c=HEX` preview swap, adapted to this site's three sections
+instead of one generated-per-color image:
+
+| URL you shared | Preview image | Preview title/description |
+|---|---|---|
+| `/` (home) | `assets/seal.png` | static — "Tesla Archive" |
+| `/snaps`, `/snaps/?snap=<token>` | `assets/icons/snaps.png` | "Tesla Snaps — Tesla Archive" (or that snap's caption, if the token resolves) |
+| `/scrolls`, `/scrolls/?scroll=<token>` | `assets/icons/scrolls.png` | "Tesla Scrolls — Tesla Archive" (or that scroll's caption) |
+| `/posts`, `/post/?post=<token>` | `assets/icons/posts.png` | "Tesla Posts — Tesla Archive" (or that post's own title + a trimmed excerpt of its description) |
+
+The per-item lookup works by re-hashing every id in `data.js` with the same
+`hashToken()` used client-side and comparing it to the token in the URL —
+`data.js` is fetched and parsed with a small comment-stripping/bracket-
+matching parser (no `eval`, which Workers block anyway), so a shared link
+never breaks even if that parsing fails for some reason — it just falls
+back to the category-level title/image above.
+
+`index.html`'s `<head>` carries static default tags (used as-is on a plain
+static host with no `functions/` support); `og:image`/`twitter:image` and
+`og:url`/canonical are always rewritten to an absolute, current-origin URL
+on Cloudflare Pages, since the static values are root-relative and a
+crawler can't resolve those on its own.
+
+**Adding a fourth category:** add an entry to `CATEGORY_META` in
+`functions/_middleware.js` (label, description, seal filename, query
+param, and the `data.js` array name), and update `detectCategory()`'s
+path check to recognize its route.
+
 ## Cache-busting
 
 The site is a handful of files with no build step, so a browser can easily

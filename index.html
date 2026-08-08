@@ -14,6 +14,29 @@
      "URL scheme" for the routes this protects. -->
 <base href="/" />
 <title>Tesla Archive</title>
+<meta name="description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
+<link rel="canonical" href="/" />
+
+<!-- Default sharing preview. Static values below are what a plain static
+     host (no functions/) serves as-is. On Cloudflare Pages,
+     functions/_middleware.js rewrites og:image/twitter:image on every
+     request to an absolute URL, and additionally swaps in the matching
+     category seal (snaps.png / scrolls.png / posts.png from
+     assets/icons/) plus a specific title/description whenever the URL
+     is a Snaps, Scrolls, or Posts page or permalink — same pattern as
+     ChromaX's ?c=HEX open graph swap, just keyed off the category/route
+     instead of a query color. See README.md → "Sharing previews". -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Tesla Archive" />
+<meta property="og:description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
+<meta property="og:image" content="/assets/seal.png" />
+<meta property="og:url" content="/" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Tesla Archive" />
+<meta name="twitter:description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
+<meta name="twitter:image" content="/assets/seal.png" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
