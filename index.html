@@ -3,6 +3,16 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Forces EVERY relative URL on this page — stylesheet/script src,
+     img src in data.js content, fetch() calls in index.js, anything
+     without a leading "/" — to resolve against the site root, not
+     against whatever the current path happens to be. Without this, a
+     direct load/refresh of an item URL like /snaps/?snap=<token> (note
+     the trailing slash) makes the browser treat "/snaps/" as a
+     directory and resolve "index.css" as "/snaps/index.css" (404) —
+     the styleless-page bug. See README.md → "Cache-busting" /
+     "URL scheme" for the routes this protects. -->
+<base href="/" />
 <title>Tesla Archive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
