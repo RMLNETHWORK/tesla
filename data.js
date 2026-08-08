@@ -74,6 +74,18 @@ const AUTHORS = {
     name: 'Shan',
     avatar: '/assets/anon.png',
   },
+  'Sky Penguin': {
+    name: 'Sky Penguin',
+    avatar: '/assets/anon.png',
+  },
+    'Grey': {
+      name: 'Grey',
+      avatar: '/assets/anon.png',
+    },
+  'CK': {
+    name: 'CK',
+    avatar: '/assets/anon.png',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -123,11 +135,38 @@ const POSTS = [
   },
   {
     id: 'effcom/post4',
-    title: "When They Left for 5 Days ",
+    title: "When They Left for 5 Days",
     description: 'My stepdad just got home from abroad.\nI was happy. 4 days later, that happiness turned into “oh...”\n\nBecause after those 4 days, he and my mom started packing. They had to go to Tagaytay to attend my stepdad’s sibling’s wedding.\n\nI knew about it. Mom told me even before my stepdad arrived. “5 days lang kami dun,” she said.\nAnd it wasn’t like I was completely alone, ate and our cousin were with us too. So in my head, “Kaya namin ‘to. Hindi naman mahirap.”\n\nThe first few days were actually fine.\nIt was just me and my 3 siblings at home. Quiet, but manageable.\nFunny thing is, I even learned how to cook because of it. Adobo. Pork afritada. Sinigang. Gulay.\nI was kinda proud of myself. “Look at me, adulting.”\n\nBut then reality hit.\n\nIt stopped being “okay” when everything started piling up at the same time.\nCook. Wash dishes. Clean the house.\nThen drop everything and get my sibling ready for school.\nBack to back. No pause button.\n\nThat’s when I realized it:\nMahirap pala talaga mag-isa.\nEven when you’re not technically alone, the responsibility makes you feel like you’re carrying everything by yourself.\n\nI don’t regret learning. I don’t regret stepping up.\nBut I also didn’t expect how heavy 5 days could feel.',
     tag: 'PT - EffCom',
     author: 'Shan',
     date: '2026-08-08',
     time: '10:55 AM',
+  },
+  {
+    id: 'effcom/post5',
+    title: "3 Ways To Avoid Sudden Emotional Crashouts",
+    description: "There are lots of thing that can trigger emotional overload for us, that might cause unexpected sudden crashouts.\n\nFrom playing sports, losing games, triggering words, and a lot more. Overload of emotion isn't easy to control nor avoid, I can say it from my experiences, but there are ways to control how you handle it.\n\nHere are steps how I handle myself and my actions when facing a sudden trigger, you can reflect on this:\n\n1. Always Think Advance\n\nPersonally, most of the time that this happens to me, I always ask my self this question, \"What would be the consequences of my actions to my self and to others?\" Simply answering this, we can avoid acting uncontrollably. Knowing what our action will do cause to others, will help us identify if it will benefit us or destroy us.\n\n2. Talk To Yourself\n\nAfter calming down a bit, I choose to talk to my self. Reliving my past memories to limit my brain of thinking positively. Not fighting back from situations doesn't mean you are weak, it simply states how you're strong and wise enough to know how you handle it right. Talking to yourself also doesn't mean you're not mentally well, like every stereotypes. It is one way to think right on situations and reflect on it.\n\n3. Reflect Through Words or Writing\n\nAfter fully calming down, the next best action is to distance your self to those who triggered your emotions. Then, try putting out your phone, or get your self a pen or paper, and even getting someone to talk to. Using either one of those, write or tell them how the experience was. Reflecting after every kinds of this situation will help us learn from possible mistakes, and will make controlling ourselves much easier in the future.\n\nThat's simply it, try these things out and tell me how you grow and learn to control yourselves.\n\nAnd also, you can share your own ways of handling it down below↓ I'll read and I might even try it out.",
+    tag: 'PT - EffCom',
+    author: 'Sky Penguin',
+    date: '2026-08-08',
+    time: '05:44 PM',
+  },
+  {
+    id: 'effcom/post6',
+    title: "The Role I Never Asked For",
+    description: "Have you found yourself in a situation that you never intended to? There are times when life places us in situations we never expected. That is exactly what happened me when I was unexpectedly appointed as a youth officer in our barangay. Since I hadn't been present at the election, I had assumed that I would have no connection with it. However, when I got home, I discovered that my name had been included in the group chat and my father informed me about it. At first, I was confused and doubtful, and to be honest, I wasn't certain whether I wanted to accept the position.\n\nYet I chose to remain, particularly due to the people I was with. It was thanks to them that I gradually came to the realization that \"Ahhh, masaya naman pala\". I began to enjoy the experience and felt more at ease when taking part in activities and spending time with others. I'm not really a sociable person; as my mother always says, \"Palagi ka na lang nasa kwarto\", and in fact she's correct. I usually prefer to stay in my room rather than go to places that are crowded. But being a part of the group made me see that going out and spending time with other people isn't something I should always avoid.\n\nAs a result of this experience I believe that I have changed, even if only a little, and that I have become more inclined to take part, to communicate and to spend time with other people. I might still be the sort of person who likes to stay in his room, but I have noticed that there is a difference about me now. I have realised that going outside one's comfort zone doesn't have to be uncomfortable or scary, since at times it can result in experiences which I never thought I would enjoy.\n\nIf you look back on it, you will see that there are situations in which we end up taking on roles that we never expected. Although it might at first seem like a burden, you can't know what such a role might offer you unless you give it a try. I had no intention of becoming an officer, but I decided to remain, and I'm thankful that I did. It is often the experiences we never expected that enable us to find a different aspect of ourselves.",
+    tag: 'PT - EffCom',
+    author: 'Grey',
+    date: '2026-08-08',
+    time: '07:00 PM',
+  },
+  {
+    id: 'effcom/post7',
+    title: "My Rubik’s Cube Journey",
+    description: "A Scrambled Challenge,\nAt first, solving a Rubik’s Cube seemed impossible. The mixed colors looked like a confusing maze, and every turn I made seemed to make the cube even more disorganized. Still, I decided to try instead of giving up immediately.\n\nI began by learning the basic notation and the beginner’s layer-by-layer method. The letters represented different sides of the cube, while an apostrophe meant turning a side in the opposite direction. The first goal was to create a white cross, followed by completing the corners and middle layer.\n\nMy first attempts were frustrating. I often forgot the sequence of movements or turned the wrong side of the cube. Sometimes, I was almost finished, but one careless move ruined my progress. I had to scramble the cube again and start over.\n\nInstead of seeing my mistakes as failures, I slowly began treating them as part of the learning process. I practiced the same algorithms repeatedly until my hands became more familiar with the movements. The cube taught me that solving a problem is not always about immediately knowing the answer. Sometimes, it is about following a process patiently, one step at a time.\n\nThere were moments when I wanted to stop, but I reminded myself that confusion is normal when learning something new. Every unsuccessful attempt helped me remember what not to do. Gradually, the colors began to align, and I became more confident.\n\nWhen I finally solved the Rubik’s Cube, I felt proud not only because all the colors matched, but because I had stayed patient through the difficult parts. The solved cube represented the effort, mistakes, and persistence that came before it.\n\nThis experience made me realize that many problems in life are like a scrambled cube. They may look complicated at first, but they become manageable when divided into smaller steps. I learned that progress does not always happen quickly, and making mistakes does not mean I am incapable. Sometimes, success comes from continuing to turn the pieces until everything eventually falls into place.",
+    tag: 'PT - EffCom',
+    author: 'CK',
+    date: '2026-08-08',
+    time: '08:33 PM',
   },
 ];
