@@ -1,0 +1,7 @@
+{
+  "name": "teslahub",
+  "private": true,
+  "dependencies": {
+    "@cloudflare/pages-plugin-vercel-og": "^0.1.0"
+  }
+}

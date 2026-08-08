@@ -182,35 +182,49 @@ Dark/light toggle lives in the top navbar. Preference is saved in
 ## Sharing previews (Open Graph / Twitter Card)
 
 When a link to this site is pasted into Slack/Discord/iMessage/Twitter/etc,
-`functions/_middleware.js` rewrites the page's `og:image`, `og:title`,
-`og:description`, `og:url`, and `<title>` in-flight — same approach as
-ChromaX's `?c=HEX` preview swap, adapted to this site's three sections
-instead of one generated-per-color image:
+the preview image isn't a flat icon — it's a **generated card** styled
+after this site's own `.post-card` UI: a small seal + "TESLA ARCHIVE"
+wordmark on top, then (for a specific shared item) the same author row /
+title / description you'd see in the app itself, all left-aligned on a
+dark card. Same mechanism as ChromaX's `?c=HEX` → generated-PNG preview,
+adapted from "one color, one generated card" to "one shared Snap/Scroll/
+Post, one generated card":
 
-| URL you shared | Preview image | Preview title/description |
-|---|---|---|
-| `/` (home) | `assets/seal.png` | static — "Tesla Archive" |
-| `/snaps`, `/snaps/?snap=<token>` | `assets/icons/snaps.png` | "Tesla Snaps — Tesla Archive" (or that snap's caption, if the token resolves) |
-| `/scrolls`, `/scrolls/?scroll=<token>` | `assets/icons/scrolls.png` | "Tesla Scrolls — Tesla Archive" (or that scroll's caption) |
-| `/posts`, `/post/?post=<token>` | `assets/icons/posts.png` | "Tesla Posts — Tesla Archive" (or that post's own title + a trimmed excerpt of its description) |
+- `functions/og.png.js` — renders the 1200×630 card via
+  `@cloudflare/pages-plugin-vercel-og`'s `ImageResponse` (a satori-based
+  renderer — same package ChromaX uses). Takes `?cat=snaps|scrolls|posts`
+  and an optional `?id=<token>`.
+- `functions/_middleware.js` — rewrites `og:image`/`twitter:image` to
+  point at `/og.png?cat=...&id=...` (and `og:title`/`og:description`/
+  `<title>`/canonical to match) whenever the requested URL is a Snaps,
+  Scrolls, or Posts page or permalink. `/` and anything unrecognized keep
+  the static default tags in `index.html`'s `<head>` (falls back to
+  `assets/seal.png`).
+- `functions/_shared/content.js` — parsing helpers both of the above
+  import. `data.js` is plain hand-authored JS, not JSON, and Workers won't
+  `eval()` strings — so this walks the text by hand (strip comments,
+  bracket-match the array/object blocks, pull quoted fields out with
+  small regexes) instead. The same `hashToken()` used client-side in
+  `index.js` re-hashes every id here too, so a shared link's opaque token
+  (`?post=k2m84zh1r0a`) can be matched back to the actual entry.
 
-The per-item lookup works by re-hashing every id in `data.js` with the same
-`hashToken()` used client-side and comparing it to the token in the URL —
-`data.js` is fetched and parsed with a small comment-stripping/bracket-
-matching parser (no `eval`, which Workers block anyway), so a shared link
-never breaks even if that parsing fails for some reason — it just falls
-back to the category-level title/image above.
+| URL you shared | Card shows |
+|---|---|
+| `/` (home) | static seal, default title |
+| `/snaps`, `/snaps/?snap=<token>` | "Tesla Snaps" + that snap's caption, if the token resolves |
+| `/scrolls`, `/scrolls/?scroll=<token>` | "Tesla Scrolls" + that scroll's caption |
+| `/posts`, `/post/?post=<token>` | that post's own author avatar/name, colored tag pill, date, title, and a trimmed excerpt — or the "Tesla Posts" default if no token/it doesn't resolve |
 
-`index.html`'s `<head>` carries static default tags (used as-is on a plain
-static host with no `functions/` support); `og:image`/`twitter:image` and
-`og:url`/canonical are always rewritten to an absolute, current-origin URL
-on Cloudflare Pages, since the static values are root-relative and a
-crawler can't resolve those on its own.
+If `og.png.js` ever fails to parse `data.js` or render (any exception, not
+just a bad token), it 302-redirects to the flat static seal in
+`assets/icons/` instead of 500ing — a broken parse never breaks a link
+preview, it just falls back to a plainer image.
 
 **Adding a fourth category:** add an entry to `CATEGORY_META` in
-`functions/_middleware.js` (label, description, seal filename, query
-param, and the `data.js` array name), and update `detectCategory()`'s
-path check to recognize its route.
+`functions/_shared/content.js` (label, description, seal filename, query
+param, and the `data.js` array name), update `detectCategory()`'s path
+check, and add a branch in `og.png.js`'s `renderCard()` for how that
+category's card should look.
 
 ## Cache-busting
 
