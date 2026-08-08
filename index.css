@@ -9,8 +9,21 @@
 
 * {
   -webkit-tap-highlight-color: transparent !important;
-  -webkit-focus-ring-color: transparent !important;
-  outline: none !important;
+}
+
+/* Default click/tap focus stays invisible (matches the site's original
+   intent), but keyboard navigation gets a real, visible ring — the old
+   blanket `outline: none !important;` here removed it everywhere,
+   including on every interactive element's aria-label (Close, Previous,
+   Next, Toggle menu, etc.), leaving keyboard users with no way to see
+   what's focused. :focus-visible only fires for keyboard/programmatic
+   focus, not mouse or touch, so this doesn't change how the site looks
+   for pointer users at all. */
+*:focus { outline: none; }
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 
@@ -33,7 +46,70 @@
   --radius-lg: 22px;
   --font-display: caros, sans-serif;
   --font-body: caros, sans-serif;
+
+  /* Soft/neumorphic dual-tone shadows — used on surfaces that sit flush on
+     --bg (cards, tiles, pill buttons) so they read as gently pressed out of
+     the page rather than "cut out" with a hard border. Tinted with the
+     brand purple instead of neutral black so it stays consistent with the
+     rest of the palette. Kept separate from --shadow-sm/md/lg, which stay
+     as plain drop-shadows for elements that sit on colored/photo surfaces
+     (navbar, hero, shortcut cards) where a highlight/shadow pair wouldn't
+     make sense. */
+  --neu-dist-sm: 4px;
+  --neu-dist-md: 7px;
+  --neu-dist-lg: 12px;
+  --neu-light: rgba(255, 255, 255, 0.825);
+  --neu-dark: rgba(74, 8, 104, 0.154);
+  --shadow-neu-sm: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
+  --shadow-neu-md: 7px 7px 16px var(--neu-dark), -7px -7px 16px var(--neu-light);
+  --shadow-neu-lg: 12px 12px 26px var(--neu-dark), -12px -12px 26px var(--neu-light);
+  --shadow-neu-inset: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light);
+
+  /* Soft "spring" easing — used on transform (lift/scale) transitions so
+     hovers and presses feel like they have a little physical give, matching
+     the tactile neumorphic surfaces rather than a mechanical linear glide.
+     Color/background/shadow transitions stay on plain ease; an overshoot
+     curve looks natural on movement but odd on a color fade. */
+  --ease-soft: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+/* ==========================================================================
+   SKELETON LOADING — a shimmer placeholder over media (grid thumbnails,
+   post attachments) that sits until the browser actually has bytes to
+   paint. Without this, a card/tile is blank and then pops in once its
+   image loads — a half-second "did this break?" flash. The shimmer keeps
+   the same --bg tone as the surface it's covering, so it reads as the
+   card settling in rather than a foreign loading spinner.
+   ========================================================================== */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -150% 0; }
+  100% { background-position: 150% 0; }
+}
+
+.skeleton { position: relative; }
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--text) 10%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 250% 100%;
+  animation: skeleton-shimmer 1.3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* The media itself fades in once loaded instead of popping in abruptly
+   the instant the skeleton overlay disappears. */
+.skeleton-media {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.skeleton-media.is-loaded { opacity: 1; }
 
 [data-theme="dark"] {
   --bg: #14101c;
@@ -45,6 +121,11 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.55);
+
+  /* Dark mode: highlight comes from a faint lift (surface catching light),
+     shadow from the near-black bg pooling underneath. */
+  --neu-light: rgba(255, 255, 255, 0.04);
+  --neu-dark: rgba(0, 0, 0, 0.495);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -95,6 +176,25 @@ html { scroll-behavior: smooth; }
 @keyframes glow-breathe {
   0%, 100% { box-shadow: 0 0 0 1px rgba(254, 215, 0, 0.25), 0 0 0 rgba(254, 215, 0, 0); }
   50%      { box-shadow: 0 0 0 1px rgba(254, 215, 0, 0.4), 0 0 10px rgba(254, 215, 0, 0.35); }
+}
+
+/* immediate tap feedback for icon-buttons (share, theme toggle, tag pills) —
+   fired via JS the instant a click lands, independent of whether the async
+   action behind it (copy/share) has resolved yet */
+@keyframes btn-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.88); }
+  75%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.btn-pop { animation: btn-pop 0.35s var(--ease-soft); }
+
+/* success confirmation on a share button — icon has already been swapped to
+   a checkmark in JS; this just tints it gold so it reads as "done" */
+.post-share.share-success,
+.modal-share.share-success {
+  color: var(--accent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -202,10 +302,16 @@ a { color: inherit; }
   font-weight: 600;
   cursor: pointer;
   font-size: 0.82rem;
-  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 3px 3px 7px rgba(20, 4, 32, 0.28), -2px -2px 6px rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s var(--ease-soft), background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .theme-switch:hover { background: rgba(255,255,255,0.22); transform: scale(1.03); }
+
+.theme-switch:active {
+  box-shadow: inset 2px 2px 5px rgba(20, 4, 32, 0.35), inset -2px -2px 5px rgba(255, 255, 255, 0.08);
+  transform: scale(0.98);
+}
 
 /* a small bright pulse that travels along the navbar's bottom accent line —
    reads as current running through the circuit, not a decoration */
@@ -260,11 +366,13 @@ a { color: inherit; }
 .sidebar-nav a:hover {
   background: var(--bg);
   color: var(--text);
+  box-shadow: var(--shadow-neu-inset);
 }
 
 .sidebar-nav a.active {
   background: var(--primary);
   color: #fff;
+  box-shadow: var(--shadow-neu-sm);
   animation: glow-breathe 5s ease-in-out infinite;
 }
 
@@ -325,9 +433,46 @@ a { color: inherit; }
 }
 
 .empty-state {
-  color: var(--text-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+  margin-top: 2rem;
+  padding: 2.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+  box-shadow: var(--shadow-neu-inset);
+}
+
+/* Author CSS beats the UA stylesheet's [hidden] { display: none }, so
+   setting display:flex above silently broke the hidden attribute — the
+   empty state was showing underneath real content. This wins it back. */
+.empty-state[hidden] { display: none; }
+
+.empty-state-icon {
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  margin-bottom: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  box-shadow: var(--shadow-neu-sm);
+  opacity: 0.85;
+}
+
+.empty-state-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.empty-state-sub {
+  font-size: 0.9rem;
   font-style: italic;
-  margin-top: 1.5rem;
+  color: var(--text-soft);
 }
 
 /* ==========================================================================
@@ -343,8 +488,9 @@ a { color: inherit; }
   background-size: cover;
   color: #fff;
   border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   padding: 2.5rem 2.5rem;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-neu-lg);
   position: relative;
   overflow: hidden;
 }
@@ -473,8 +619,9 @@ a { color: inherit; }
   padding: 1.35rem;
   text-decoration: none;
   color: #fff;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: var(--shadow-neu-md);
+  transition: transform 0.3s var(--ease-soft), box-shadow 0.2s ease;
 }
 
 .home-shortcut::before {
@@ -495,7 +642,7 @@ a { color: inherit; }
 
 .home-shortcut:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-neu-lg);
 }
 
 .home-shortcut:hover::before { opacity: 1; }
@@ -588,12 +735,12 @@ a { color: inherit; }
 }
 
 .card {
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 1.5rem;
   margin-top: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-neu-md);
   position: relative;
   overflow: hidden;
 }
@@ -639,13 +786,20 @@ a { color: inherit; }
   border: 1px solid var(--border);
   font-weight: 500;
   font-size: 0.93rem;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  box-shadow: var(--shadow-neu-sm);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s var(--ease-soft), box-shadow 0.2s ease;
 }
 
 .social-link:hover {
   background: var(--primary);
   color: #fff;
   transform: translateX(4px);
+  box-shadow: var(--shadow-neu-md);
+}
+
+.social-link:active {
+  transform: translateX(2px);
+  box-shadow: var(--shadow-neu-inset);
 }
 
 .social-icon { display: flex; align-items: center; }
@@ -668,19 +822,94 @@ a { color: inherit; }
   gap: 1.4rem;
 }
 
+/* ==========================================================================
+   DATE GROUP HEADERS — sticky dividers ("Today", "This Week", "October")
+   used on the Snaps grid and Posts feed so a long scroll never leaves you
+   wondering how far back you've gone. grid-column spans the full row on
+   .gallery-grid; it's simply ignored (harmless) on .posts-feed's flex
+   layout, so the same class works in both places.
+   ========================================================================== */
+.date-group-header {
+  grid-column: 1 / -1;
+  position: sticky;
+  top: 64px; /* sits just under the fixed navbar */
+  z-index: 5;
+  width: fit-content;
+  margin: 0.2rem 0 -0.3rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--radius-sm);
+}
+
+.gallery-grid .date-group-header:first-child,
+.posts-feed .date-group-header:first-child {
+  margin-top: 0;
+}
+
+/* ==========================================================================
+   FOCUS-ON-HOVER — dims sibling tiles when one is hovered so the hovered
+   tile reads as the clear figure against the rest (Gestalt figure/ground),
+   without adding any new UI. Scoped to devices with real hover so a tap on
+   touch doesn't leave every other tile stuck dimmed.
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  .gallery-grid:hover .gallery-item:not(:hover),
+  .scrolls-grid:hover .scroll-tile:not(:hover) {
+    opacity: 0.55;
+  }
+}
+
+/* ==========================================================================
+   UNVIEWED INDICATOR — a small gold dot on items not yet opened, tracked
+   per item id in localStorage (see index.js markViewed). Reuses the same
+   accent-gold glow as the navbar's "current page" pulse so it reads as
+   part of the same visual language rather than a bolted-on notification
+   badge.
+   ========================================================================== */
+.new-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px 1px rgba(254, 215, 0, 0.8);
+  pointer-events: none;
+}
+
+.new-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 5px 1px rgba(254, 215, 0, 0.7);
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+
 .gallery-item {
   cursor: pointer;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-neu-sm);
+  transition: transform 0.3s var(--ease-soft), box-shadow 0.2s ease, opacity 0.25s ease;
 }
 
 .gallery-item:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-neu-md);
 }
 
 .gallery-image-wrapper {
@@ -690,6 +919,9 @@ a { color: inherit; }
   overflow: hidden;
   background: var(--bg);
 }
+
+/* .skeleton is added/removed by JS in index.js (see attachSkeleton) */
+.gallery-image-wrapper.skeleton::after { border-radius: inherit; }
 
 .gallery-image-wrapper img {
   position: absolute;
@@ -737,13 +969,13 @@ a { color: inherit; }
   overflow: hidden;
   background: #000;
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-neu-sm);
+  transition: transform 0.3s var(--ease-soft), box-shadow 0.2s ease, opacity 0.25s ease;
 }
 
 .scroll-tile:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-neu-md);
 }
 
 .scroll-tile-media {
@@ -753,6 +985,9 @@ a { color: inherit; }
   overflow: hidden;
   background: #000;
 }
+
+/* .skeleton is added/removed by JS in index.js (see attachSkeleton) */
+.scroll-tile-media.skeleton::after { border-radius: inherit; }
 
 .scroll-tile-media video {
   width: 100%;
@@ -892,21 +1127,23 @@ a { color: inherit; }
 .tag-pill {
   --tag-color: var(--primary);
   border: 1.5px solid var(--tag-color);
-  background: transparent;
+  background: var(--bg);
   color: var(--tag-color);
   font-weight: 600;
   font-size: 0.84rem;
   padding: 0.5rem 1.05rem;
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease;
+  box-shadow: var(--shadow-neu-sm);
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.tag-pill:hover { background: color-mix(in srgb, var(--tag-color) 12%, transparent); }
+.tag-pill:hover { background: color-mix(in srgb, var(--tag-color) 12%, var(--bg)); }
 
 .tag-pill.active {
   background: var(--tag-color);
   color: var(--tag-contrast, #fff);
+  box-shadow: var(--shadow-neu-inset);
 }
 
 .posts-feed {
@@ -919,15 +1156,15 @@ a { color: inherit; }
 
 /* --- card shell --- */
 .post-card {
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-neu-sm);
   transition: box-shadow 0.2s ease;
 }
 
-.post-card:hover { box-shadow: var(--shadow-md); }
+.post-card:hover { box-shadow: var(--shadow-neu-md); }
 
 /* --- header: avatar, author name, tag + timestamp, like Facebook's post header --- */
 .post-header {
@@ -973,7 +1210,8 @@ a { color: inherit; }
   background: var(--bg);
   color: var(--text-soft);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  box-shadow: var(--shadow-neu-sm);
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.25s var(--ease-soft);
 }
 
 .post-share svg { width: 16px; height: 16px; }
@@ -981,8 +1219,12 @@ a { color: inherit; }
 .post-share:hover {
   background: color-mix(in srgb, var(--primary) 12%, var(--bg));
   color: var(--primary);
-  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
   transform: scale(1.06);
+}
+
+.post-share:active {
+  box-shadow: var(--shadow-neu-inset);
+  transform: scale(1);
 }
 
 .post-avatar {
@@ -993,6 +1235,7 @@ a { color: inherit; }
   flex-shrink: 0;
   background: var(--bg);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-neu-sm);
 }
 
 .post-header-text { display: flex; flex-direction: column; min-width: 0; }
@@ -1061,7 +1304,14 @@ a { color: inherit; }
 .read-more:hover { text-decoration: underline; }
 
 /* --- media, edge-to-edge like a Facebook attachment, sits above the text --- */
-.post-media-wrap { line-height: 0; }
+.post-media-wrap { line-height: 0; position: relative; }
+
+/* Post images have no fixed height, so a bare .skeleton has nothing to
+   cover until the image loads (0px tall). Give it a placeholder height
+   for that window only — .skeleton is removed by JS once the image
+   loads, and the wrap goes back to sizing off the image's own aspect. */
+.post-media-wrap.skeleton { aspect-ratio: 16 / 9; background: var(--bg); }
+.post-media-wrap.skeleton::after { border-radius: inherit; }
 
 .post-media {
   width: 100%;
@@ -1140,7 +1390,13 @@ a { color: inherit; }
   background: var(--bg);
   border: 1px solid var(--border);
   color: var(--text-soft);
+  box-shadow: var(--shadow-neu-sm);
   z-index: auto;
+}
+
+.post-modal-actions .modal-close:active,
+.post-modal-actions .modal-share:active {
+  box-shadow: var(--shadow-neu-inset);
 }
 
 .post-modal-actions .modal-close:hover,
@@ -1187,6 +1443,7 @@ a { color: inherit; }
   flex-shrink: 0;
   background: var(--bg);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-neu-md);
 }
 
 .author-header-info h1 {
@@ -1262,7 +1519,8 @@ a { color: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s ease;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.35), -2px -2px 6px rgba(255, 255, 255, 0.06);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
   z-index: 2001;
 }
 
@@ -1285,7 +1543,8 @@ a { color: inherit; }
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s ease;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.35), -2px -2px 6px rgba(255, 255, 255, 0.06);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
   z-index: 2001;
 }
 
@@ -1308,7 +1567,8 @@ a { color: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s ease;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.35), -2px -2px 6px rgba(255, 255, 255, 0.06);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
   z-index: 2001;
 }
 

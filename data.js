@@ -53,12 +53,7 @@ const SCROLLS = [
 // below must reference one of these by `id` in its own `author` field —
 // Posts are no longer attributed to "Tesla Archive" itself.
 // ---------------------------------------------------------------------------
-// `avatar` is this author's DEFAULT profile picture — used on their own
-// author page, and on any of their posts that don't set their own `avatar`
-// (see POSTS below). Optional — omit it and the default seal icon is used
-// instead. Add a new { id, name, avatar? } object here, then reference its
-// `id` from any POSTS entry's `author` field. Clicking an author's name/
-// avatar on a post opens that author's own page, showing only their posts.
+
 const AUTHORS = {
   'admin': {
     name: 'Tesla Archive',
@@ -84,33 +79,13 @@ const AUTHORS = {
 // ---------------------------------------------------------------------------
 // POSTS — title + description + tag + author, with one photo OR one video
 // ---------------------------------------------------------------------------
-// Tags in use so far, each mapped to its own color (any valid CSS color —
-// hex, rgb(), etc). Add a new "Tag Name": "#color" pair to introduce a new
-// filter pill — it shows up on the Posts page automatically, colored the
-// way you set it here. The tag on each POSTS entry below must match a key
-// in this object exactly.
+
 const POST_TAGS = {
   'Feels': '#fed700',
   'PT - EffCom': '#4a90e2',
 };
 
-// `avatar` on a POST is optional and manually set per post — a specific
-// file path, picked by hand, just for that entry. Set it when this
-// particular post should show a different picture than the author's usual
-// one (e.g. a guest post, an in-costume photo, a picture tied to the post's
-// topic). Leave it out and the post falls back to that author's `avatar`
-// from AUTHORS above, then to the default seal icon if neither is set.
 const POSTS = [
-  /* {
-    id: 'post-demo-1',
-    title: 'Demo Announcement',
-    description: 'This is placeholder body text for a Post. Posts are the long-form option — a title, a short description, and one tag to sort by.',
-    tag: 'Feels',
-    author: 'author-demo-1',
-    avatar: 'assets/anon.webp', // manually picked for this post — overrides author-demo-1's usual avatar
-    image: 'assets/demo/post-photo-1.jpg',
-    date: '2026-08-03',
-  }, */
   {
     id: 'effcom/postA',
     title: 'EffCom Performance Task Update',

@@ -45,7 +45,15 @@ export async function onRequest(context) {
     // the plain static seal for the category (or the site seal itself).
     const category = url.searchParams.get('cat');
     const fallback = CATEGORY_META[category] ? `/assets/icons/${CATEGORY_META[category].seal}` : '/assets/seal.png';
-    return Response.redirect(`${url.origin}${fallback}`, 302);
+    // Built by hand (not Response.redirect(), which takes no headers
+    // argument) so we can mark it no-store: a redirect here means
+    // something failed to parse or render — a one-off hiccup, not a
+    // fact about this item — so it shouldn't get cached and outlive the
+    // retry that would have succeeded.
+    return new Response(null, {
+      status: 302,
+      headers: { Location: `${url.origin}${fallback}`, 'Cache-Control': 'no-store' },
+    });
   }
 }
 
@@ -211,7 +219,22 @@ async function renderCard(url) {
     },
   };
 
-  return new ImageResponse(el, { width: WIDTH, height: HEIGHT });
+  return new ImageResponse(el, {
+    width: WIDTH,
+    height: HEIGHT,
+    // @cloudflare/pages-plugin-vercel-og defaults to
+    // `public, immutable, no-transform, max-age=31536000` (1 year) in
+    // production. That's correct for a *content-addressed* image, but
+    // this one isn't — the URL is keyed off the item's token, which
+    // never changes even when its title/caption/tag color is edited in
+    // data.js. Left at the default, a crawler or browser that fetched
+    // the card once would keep serving that stale snapshot for a full
+    // year after the content changed. A short max-age here means an
+    // edit is reflected the next time anything re-fetches the card,
+    // while still saving repeat requests within the same few minutes
+    // (e.g. a platform's crawler re-verifying the link).
+    headers: { 'Cache-Control': 'public, max-age=300, must-revalidate' },
+  });
 }
 
 function titleExcerpt(str, max = 78) {

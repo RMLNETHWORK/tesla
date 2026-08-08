@@ -53,10 +53,151 @@ function byNewestFirst(a, b) {
   return getTimestamp(b) - getTimestamp(a);
 }
 
+// ---------------------------------------------------------------------------
+// DATE GROUPING — buckets a newest-first list into "Today" / "Yesterday" /
+// "This Week" / "This Month" / month names, the same ladder messaging apps
+// use so a long scroll never leaves you wondering how far back you've
+// gone. Buckets are checked in order and the first match wins, so an item
+// only ever lands in one.
+// ---------------------------------------------------------------------------
+function getDateGroupLabel(dateStr, now = new Date()) {
+  const itemDate = new Date(dateStr + 'T00:00:00');
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.round((today - itemDate) / 86400000);
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays > 1 && diffDays <= 6) return 'This Week';
+  if (itemDate.getFullYear() === today.getFullYear() && itemDate.getMonth() === today.getMonth()) {
+    return 'This Month';
+  }
+  const monthName = itemDate.toLocaleDateString('en-US', { month: 'long' });
+  return itemDate.getFullYear() === today.getFullYear()
+    ? monthName
+    : `${monthName} ${itemDate.getFullYear()}`;
+}
+
+// Groups an already newest-first-sorted array into consecutive
+// { label, entries: [{ item, index }] } runs, `index` being the item's
+// position in the original array — callers that render items by index
+// (Snaps' data-index) need that; callers that just render in DOM order
+// (Posts) can ignore it.
+function groupByDate(items) {
+  const groups = [];
+  let currentLabel = null;
+  items.forEach((item, index) => {
+    const label = getDateGroupLabel(item.date);
+    if (label !== currentLabel) {
+      groups.push({ label, entries: [] });
+      currentLabel = label;
+    }
+    groups[groups.length - 1].entries.push({ item, index });
+  });
+  return groups;
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+// ---------------------------------------------------------------------------
+// SKELETON LOADING — shows a shimmer overlay on `wrapper` (see .skeleton in
+// index.css) until `media` (an <img> or <video>) actually has something to
+// paint, then fades it in. Used on the Snaps grid, Scrolls grid, and Posts
+// feed so cards don't blank-then-pop as images/thumbnails load in.
+// `readyEvent` is the event that means "there's a frame to show" — 'load'
+// for images, 'seeked' for videos (forcePosterFrame seeks them to frame 0.05
+// once metadata is in; the shimmer should outlast that seek, not just the
+// metadata fetch, or it'd clear before there's actually a poster to see).
+// ---------------------------------------------------------------------------
+function attachSkeleton(wrapper, media, readyEvent = 'load') {
+  if (!wrapper || !media) return;
+
+  wrapper.classList.add('skeleton');
+  media.classList.add('skeleton-media');
+
+  const reveal = () => {
+    wrapper.classList.remove('skeleton');
+    media.classList.add('is-loaded');
+  };
+
+  // Cached images fire no future 'load' — they're already complete.
+  if (media.tagName === 'IMG' && media.complete && media.naturalWidth > 0) {
+    reveal();
+    return;
+  }
+
+  media.addEventListener(readyEvent, reveal, { once: true });
+  media.addEventListener('error', reveal, { once: true }); // don't shimmer forever on a broken src
+}
+
+// ---------------------------------------------------------------------------
+// UNVIEWED TRACKING — a small gold dot on items not yet opened, persisted
+// per item id in localStorage (no login needed). Marking happens where an
+// item actually gets *displayed* (updateSnapModal / updatePostModal / the
+// Scrolls intersection callback below) rather than only on the initial
+// click, so stepping through prev/next arrows or swiping the vertical
+// viewer counts as viewing too — not just the first tap.
+// ---------------------------------------------------------------------------
+const VIEWED_STORAGE_KEY = 'teslahub-viewed-v1';
+
+function loadViewedStore() {
+  try {
+    const raw = localStorage.getItem(VIEWED_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (_) {
+    return {}; // private browsing / storage disabled — dots just won't persist
+  }
+}
+
+function saveViewedStore(store) {
+  try {
+    localStorage.setItem(VIEWED_STORAGE_KEY, JSON.stringify(store));
+  } catch (_) {
+    // quota exceeded or storage disabled — non-fatal, dots won't persist
+  }
+}
+
+const viewedStore = loadViewedStore();
+
+function isViewed(kind, id) {
+  return !!(viewedStore[kind] && viewedStore[kind].includes(id));
+}
+
+// Marks an item viewed and, if it wasn't already, strips its badge out of
+// whichever grid/feed is currently in the DOM (the grid isn't re-rendered
+// just because a modal opened, so the dot has to be cleared by hand).
+function markViewed(kind, id) {
+  if (isViewed(kind, id)) return;
+  if (!viewedStore[kind]) viewedStore[kind] = [];
+  viewedStore[kind].push(id);
+  saveViewedStore(viewedStore);
+
+  document.querySelectorAll(`[data-kind="${kind}"]`).forEach(el => {
+    if (el.dataset.id !== id) return;
+    const badge = el.querySelector('.new-badge, .new-dot');
+    if (badge) badge.remove();
+  });
+}
+
+// ---------------------------------------------------------------------------
+// BODY SCROLL LOCK — the three fullscreen modals (Snaps, Scrolls, Posts)
+// currently leave the page underneath scrollable, so on a long grid you can
+// scroll the background while a modal sits on top of it. Set-based rather
+// than a plain boolean so nothing goes wrong if two modals were ever open
+// at once (e.g. one closing silently while another opens) — scroll only
+// actually restores once every lock has released.
+// ---------------------------------------------------------------------------
+const openModalLocks = new Set();
+function lockBodyScroll(name) {
+  openModalLocks.add(name);
+  document.body.style.overflow = 'hidden';
+}
+function unlockBodyScroll(name) {
+  openModalLocks.delete(name);
+  if (openModalLocks.size === 0) document.body.style.overflow = '';
 }
 
 // Picks readable text (black or white) for a given background color, so
@@ -96,6 +237,7 @@ const savedTheme = localStorage.getItem('theme') || 'light';
 applyTheme(savedTheme);
 
 themeSwitch.addEventListener('click', () => {
+  popButton(themeSwitch);
   const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
   const next = current === 'dark' ? 'light' : 'dark';
   localStorage.setItem('theme', next);
@@ -327,20 +469,28 @@ function renderSnaps() {
   }
   empty.hidden = true;
 
-  grid.innerHTML = snapItems.map((snap, i) => `
-    <div class="gallery-item" data-index="${i}">
-      <div class="gallery-image-wrapper">
-        <img src="${escapeHtml(snap.image)}" alt="${escapeHtml(snap.caption)}" loading="lazy" />
+  grid.innerHTML = groupByDate(snapItems).map(group => `
+    <h2 class="date-group-header">${escapeHtml(group.label)}</h2>
+    ${group.entries.map(({ item: snap, index: i }) => `
+      <div class="gallery-item" data-index="${i}" data-kind="snaps" data-id="${escapeHtml(snap.id)}">
+        <div class="gallery-image-wrapper">
+          <img src="${escapeHtml(snap.image)}" alt="${escapeHtml(snap.caption)}" loading="lazy" />
+          ${isViewed('snaps', snap.id) ? '' : '<span class="new-badge" aria-hidden="true"></span>'}
+        </div>
+        <div class="gallery-caption">
+          ${escapeHtml(snap.caption)}
+          <span class="gallery-date">${formatDate(snap.date)}</span>
+        </div>
       </div>
-      <div class="gallery-caption">
-        ${escapeHtml(snap.caption)}
-        <span class="gallery-date">${formatDate(snap.date)}</span>
-      </div>
-    </div>
+    `).join('')}
   `).join('');
 
   grid.querySelectorAll('.gallery-item').forEach(item => {
     item.addEventListener('click', () => openSnapModal(Number(item.dataset.index)));
+  });
+
+  grid.querySelectorAll('.gallery-image-wrapper').forEach(wrapper => {
+    attachSkeleton(wrapper, wrapper.querySelector('img'));
   });
 }
 
@@ -368,11 +518,13 @@ function openSnapModal(index, { push = true } = {}) {
 
   updateSnapModal();
   snapModal.classList.add('active');
+  lockBodyScroll('snap');
 }
 
 function updateSnapModal() {
   const snap = snapItems[snapModalIndex];
   if (!snap) return;
+  markViewed('snaps', snap.id);
   snapModalImg.src = snap.image;
   snapModalImg.alt = snap.caption;
   snapModalCaption.textContent = `${snap.caption} — ${formatDate(snap.date)}`;
@@ -387,6 +539,7 @@ function updateSnapModal() {
 function closeSnapModal({ silent = false } = {}) {
   if (!snapModal.classList.contains('active')) return;
   snapModal.classList.remove('active');
+  unlockBodyScroll('snap');
 
   if (!silent) {
     if (snapOpenedViaPush) history.back();
@@ -447,10 +600,11 @@ function renderScrolls() {
   empty.hidden = true;
 
   grid.innerHTML = scrollDataItems.map((scroll, i) => `
-    <div class="scroll-tile" data-index="${i}">
+    <div class="scroll-tile" data-index="${i}" data-kind="scrolls" data-id="${escapeHtml(scroll.id)}">
       <div class="scroll-tile-media">
         <video src="${escapeHtml(scroll.video)}" muted playsinline preload="metadata"></video>
         <span class="scroll-tile-play">&#9654;</span>
+        ${isViewed('scrolls', scroll.id) ? '' : '<span class="new-badge" aria-hidden="true"></span>'}
       </div>
       <div class="scroll-tile-caption">
         ${escapeHtml(scroll.caption)}
@@ -463,6 +617,10 @@ function renderScrolls() {
 
   grid.querySelectorAll('.scroll-tile').forEach(tile => {
     tile.addEventListener('click', () => openScrollsViewer(Number(tile.dataset.index)));
+  });
+
+  grid.querySelectorAll('.scroll-tile-media').forEach(wrapper => {
+    attachSkeleton(wrapper, wrapper.querySelector('video'), 'seeked');
   });
 }
 
@@ -516,7 +674,10 @@ function openScrollsViewer(index, { push = true } = {}) {
         // centered — same idea as stepping through the Posts/Snaps modals
         const i = Number(entry.target.dataset.index);
         const scroll = scrollDataItems[i];
-        if (scroll) history.replaceState({ modal: 'scroll', id: scroll.id }, '', itemUrl('scrolls', scroll.id));
+        if (scroll) {
+          history.replaceState({ modal: 'scroll', id: scroll.id }, '', itemUrl('scrolls', scroll.id));
+          markViewed('scrolls', scroll.id);
+        }
       } else {
         // scrolled away — reset to the first frame, like TikTok/Shorts/Reels
         resetScrollItem(entry.target);
@@ -527,6 +688,7 @@ function openScrollsViewer(index, { push = true } = {}) {
   items.forEach(item => scrollsViewerObserver.observe(item));
 
   scrollsModal.classList.add('active');
+  lockBodyScroll('scrolls');
 
   // jump straight to the tapped video, no smooth-scroll animation
   const target = items[index];
@@ -546,6 +708,7 @@ function closeScrollsViewer({ silent = false } = {}) {
   scrollsViewerContainer.querySelectorAll('.scroll-item').forEach(resetScrollItem);
   if (scrollsViewerObserver) scrollsViewerObserver.disconnect();
   scrollsModal.classList.remove('active');
+  unlockBodyScroll('scrolls');
 
   if (!silent) {
     if (scrollsOpenedViaPush) history.back();
@@ -568,6 +731,10 @@ document.addEventListener('keydown', (e) => {
 let activePostTag = 'All';
 
 const SHARE_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>';
+// Swapped into a share button briefly after a successful copy, so the
+// confirmation lands right where the person is already looking instead of
+// only at the bottom-of-screen toast — a tighter, faster feedback loop.
+const CHECK_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5 11-11"/></svg>';
 
 function getAuthor(id) {
   return (typeof AUTHORS === 'object' && AUTHORS[id]) || { name: 'Unknown Author', avatar: 'assets/seal.png' };
@@ -637,9 +804,38 @@ function getShareText(post) {
   return `${author.name} on TeslaArchive: "${post.title}"`;
 }
 
-async function sharePost(post) {
+// Immediate tap feedback, independent of whether the share/copy actually
+// succeeds — closes the feedback loop the instant the person taps, rather
+// than waiting on a network/OS round-trip before anything visibly responds.
+function popButton(btn) {
+  if (!btn) return;
+  btn.classList.remove('btn-pop');
+  // eslint-disable-next-line no-unused-expressions
+  void btn.offsetWidth; // restart the animation if it's still running from a rapid re-tap
+  btn.classList.add('btn-pop');
+}
+
+// Swaps a share button's icon to a checkmark for a beat after a successful
+// copy, then restores it — confirmation happens at the point of action
+// instead of only via the toast at the bottom of the screen.
+let shareSuccessTimers = new WeakMap();
+function flashShareSuccess(btn) {
+  if (!btn) return;
+  clearTimeout(shareSuccessTimers.get(btn));
+  const original = btn.innerHTML;
+  btn.innerHTML = CHECK_ICON_SVG;
+  btn.classList.add('share-success');
+  const t = setTimeout(() => {
+    btn.innerHTML = original;
+    btn.classList.remove('share-success');
+  }, 1400);
+  shareSuccessTimers.set(btn, t);
+}
+
+async function sharePost(post, btn) {
   const url = getPostShareUrl(post);
   const text = getShareText(post);
+  popButton(btn);
 
   if (navigator.share) {
     try {
@@ -647,12 +843,14 @@ async function sharePost(post) {
     } catch (err) {
       if (err && err.name === 'AbortError') return; // user closed the share sheet — not an error
       const copied = await copyToClipboard(`${text}\n${url}`);
+      if (copied) flashShareSuccess(btn);
       showToast(copied ? 'Link copied!' : 'Could not copy link');
     }
     return;
   }
 
   const copied = await copyToClipboard(`${text}\n${url}`);
+  if (copied) flashShareSuccess(btn);
   showToast(copied ? 'Link copied!' : 'Could not copy link');
 }
 
@@ -692,14 +890,15 @@ function postCardHtml(post) {
   // already opens the post modal on click (see bindPostCardEvents), so the
   // click naturally bubbles there with no extra wiring needed.
   const readMore = truncated ? '&hellip; <button class="read-more" type="button">Read more</button>' : '';
+  const newDot = isViewed('posts', post.id) ? '' : '<span class="new-dot" aria-hidden="true"></span>';
 
   return `
-    <article class="post-card">
+    <article class="post-card" data-kind="posts" data-id="${escapeHtml(post.id)}">
       <div class="post-header">
         <button class="post-author" type="button" data-author="${escapeHtml((TOKEN_MAPS.author.toToken.get(post.author)) || '')}">
           <img class="post-avatar" src="${escapeHtml(postAvatar(post, author))}" alt="" />
           <div class="post-header-text">
-            <span class="post-org">${escapeHtml(author.name)}</span>
+            <span class="post-org">${newDot}${escapeHtml(author.name)}</span>
             <span class="post-meta">
               <span class="post-tag" style="--tag-color:${color}">${escapeHtml(post.tag)}</span>
               · <span>${formatDate(post.date)}</span>
@@ -712,6 +911,7 @@ function postCardHtml(post) {
       <div class="post-body">
         <h3 class="post-title">${escapeHtml(post.title)}</h3>
         <p class="post-description">${escapeHtml(excerptText)}${readMore}</p>
+
       </div>
     </article>
   `;
@@ -728,6 +928,10 @@ function bindPostCardEvents(container, items) {
       if (authorId) goToAuthorPage(authorId);
     });
   });
+  container.querySelectorAll('.post-media-wrap').forEach(wrapper => {
+    attachSkeleton(wrapper, wrapper.querySelector('img'));
+  });
+
   container.querySelectorAll('.post-card').forEach((card, i) => {
     const img = card.querySelector('.post-media-wrap img');
     if (img) img.addEventListener('click', () => openPostModal(items, i));
@@ -737,7 +941,7 @@ function bindPostCardEvents(container, items) {
     if (shareBtn) {
       shareBtn.addEventListener('click', (e) => {
         e.stopPropagation(); // don't let the click bubble to anything else on the card
-        sharePost(items[i]);
+        sharePost(items[i], shareBtn);
       });
     }
   });
@@ -764,6 +968,11 @@ function renderPosts() {
     btn.addEventListener('click', () => {
       activePostTag = btn.dataset.tag;
       renderPosts();
+      // renderPosts() just rebuilt the pill bar (the clicked button itself
+      // no longer exists), so pop the newly-active pill instead — feedback
+      // lands on the result of the click rather than the button that's gone.
+      const newActive = document.querySelector('#postsTagFilter .tag-pill.active');
+      popButton(newActive);
     });
   });
 
@@ -778,7 +987,10 @@ function renderPosts() {
   }
   empty.hidden = true;
 
-  feed.innerHTML = items.map(postCardHtml).join('');
+  feed.innerHTML = groupByDate(items).map(group => `
+    <h2 class="date-group-header">${escapeHtml(group.label)}</h2>
+    ${group.entries.map(({ item }) => postCardHtml(item)).join('')}
+  `).join('');
   bindPostCardEvents(feed, items);
 }
 
@@ -819,11 +1031,13 @@ function openPostModal(items, index, { push = true } = {}) {
 
   updatePostModal();
   postModal.classList.add('active');
+  lockBodyScroll('post');
 }
 
 function updatePostModal() {
   const post = postModalItems[postModalIndex];
   if (!post) return;
+  markViewed('posts', post.id);
   const author = getAuthor(post.author);
   const color = tagColor(post.tag);
 
@@ -856,6 +1070,7 @@ function updatePostModal() {
 function closePostModal({ silent = false } = {}) {
   if (!postModal.classList.contains('active')) return;
   postModal.classList.remove('active');
+  unlockBodyScroll('post');
   postModalMedia.innerHTML = ''; // stop any playing video
 
   if (!silent) {
@@ -866,9 +1081,9 @@ function closePostModal({ silent = false } = {}) {
 }
 
 document.getElementById('postModalClose').addEventListener('click', closePostModal);
-document.getElementById('postModalShare').addEventListener('click', () => {
+document.getElementById('postModalShare').addEventListener('click', (e) => {
   const post = postModalItems[postModalIndex];
-  if (post) sharePost(post);
+  if (post) sharePost(post, e.currentTarget);
 });
 document.getElementById('postModalPrev').addEventListener('click', () => {
   postModalIndex = (postModalIndex - 1 + postModalItems.length) % postModalItems.length;
@@ -916,9 +1131,18 @@ function goToAuthorPage(authorId, { push = true } = {}) {
 
   const feed = document.getElementById('authorFeed');
   if (authorPosts.length === 0) {
-    feed.innerHTML = '<p class="empty-state">No posts from this author yet.</p>';
+    feed.innerHTML = `
+      <div class="empty-state">
+        <img class="empty-state-icon" src="/assets/icons/posts.png" alt="" />
+        <p class="empty-state-title">No posts yet</p>
+        <p class="empty-state-sub">Blog yarn? Check back soon.</p>
+      </div>
+    `;
   } else {
-    feed.innerHTML = authorPosts.map(postCardHtml).join('');
+    feed.innerHTML = groupByDate(authorPosts).map(group => `
+      <h2 class="date-group-header">${escapeHtml(group.label)}</h2>
+      ${group.entries.map(({ item }) => postCardHtml(item)).join('')}
+    `).join('');
     bindPostCardEvents(feed, authorPosts);
   }
 
