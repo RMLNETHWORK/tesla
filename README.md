@@ -128,10 +128,21 @@ real, shareable, refresh-safe URL:
 | Tesla Snaps   | `/snaps`                      |
 | Tesla Scrolls | `/scrolls`                    |
 | Tesla Posts   | `/posts`                      |
-| One Snap      | `/snaps/?snap=<id>`           |
-| One Scroll    | `/scrolls/?scroll=<id>`       |
-| One Post      | `/post/?post=<id>` *(singular "post", unlike the plural "/posts" grid)* |
-| An author's page | `/author/?author=<id>` *(no grid of its own — only reached from a post)* |
+| One Snap      | `/snaps/?snap=<token>`           |
+| One Scroll    | `/scrolls/?scroll=<token>`       |
+| One Post      | `/post/?post=<token>` *(singular "post", unlike the plural "/posts" grid)* |
+| An author's page | `/author/?author=<token>` *(no grid of its own — only reached from a post)* |
+
+`<token>` is **not** the `id` you set in data.js — it's a short opaque
+string derived from it (`index.js` → `hashToken()`), so a shared link looks
+like `?post=k2m84zh1r0a` instead of `?post=post2`. This keeps data.js
+authoring simple (still just plain, readable ids like `'post1'`) while
+keeping sequential/guessable ids out of anything a visitor actually sees —
+no info leaks about how many items exist or their order just from poking
+at the address bar. See the comment above `hashToken()` in `index.js` for
+the honest limits of this (short version: it stops casual scraping, not a
+determined attacker who reads the source — that's a static-site ceiling,
+not something a hash can fix without a backend).
 
 How it works, end to end:
 

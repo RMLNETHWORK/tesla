@@ -151,14 +151,87 @@ const ROUTES = {
   author: { itemPath: '/author/', itemParam: 'author' },
 };
 
+// ---------------------------------------------------------------------------
+// URL TOKENS — the `id` in data.js stays a plain, easy-to-type slug
+// ('post1', 'snap-2') for whoever's editing data.js; the value that
+// actually appears in a shared URL is a short opaque token derived from
+// it instead — YouTube-style ("?post=k2m84zh1r") rather than
+// ("?post=post2"), so a link doesn't advertise a sequential/guessable id
+// or how many items exist.
+//
+// Honest caveat, since "hashed" can sound stronger than it is: this is
+// obfuscation, not real security. hashToken() below ships in plain text
+// in this same file to every visitor's browser, so it's not a secret —
+// anyone can open devtools and compute hashToken('post2') themselves in
+// one line, no "cracking" required. What it DOES meaningfully stop is
+// casual enumeration/scraping: nobody idly typing ?post=2, ?post=3 into
+// the address bar, and no info leaking about ordering or total count from
+// the URL alone. If an id genuinely needs to be unguessable even by
+// someone willing to read this file, set that item's `id` in data.js to a
+// long random string instead of a short word+number — hashing a random
+// id is exactly as unguessable as the random id already was.
+function hashToken(str) {
+  // cyrb53 (public domain) — small, dependency-free, well-distributed.
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  const combined = 4294967296 * (2097151 & h2) + (h1 >>> 0); // 53-bit int
+  return combined.toString(36).padStart(11, '0');
+}
+
+// One { toToken, fromToken } pair per id-space (ids only need to be
+// unique within their own collection — see data.js — so each collection
+// gets its own map rather than one shared one).
+function buildTokenMap(ids) {
+  const toToken = new Map();
+  const fromToken = new Map();
+  ids.forEach(id => {
+    const token = hashToken(id);
+    if (fromToken.has(token)) {
+      // astronomically unlikely at this id count, but fail loud rather
+      // than silently pointing two items at the same shared link
+      console.warn(`hashToken collision between "${fromToken.get(token)}" and "${id}" — rename one id in data.js`);
+    }
+    toToken.set(id, token);
+    fromToken.set(token, id);
+  });
+  return { toToken, fromToken };
+}
+
+const TOKEN_MAPS = {
+  snaps: buildTokenMap(SNAPS.map(s => s.id)),
+  scrolls: buildTokenMap(SCROLLS.map(s => s.id)),
+  posts: buildTokenMap(POSTS.map(p => p.id)),
+  author: buildTokenMap(Object.keys(AUTHORS)),
+};
+
 function gridUrl(pageId) {
   return (ROUTES[pageId] && ROUTES[pageId].path) || '/';
 }
 
+// Builds the shareable URL for one item, using its token rather than its
+// raw data.js id (see TOKEN_MAPS above). Falls back to the raw id if it's
+// somehow not in the map (e.g. called with a stale/unknown id) so a share
+// action never just silently fails.
 function itemUrl(pageId, id) {
   const route = ROUTES[pageId];
   if (!route || !route.itemPath) return gridUrl(pageId);
-  return `${route.itemPath}?${route.itemParam}=${encodeURIComponent(id)}`;
+  const map = TOKEN_MAPS[pageId];
+  const token = (map && map.toToken.get(id)) || id;
+  return `${route.itemPath}?${route.itemParam}=${encodeURIComponent(token)}`;
+}
+
+// Reverses a URL token back to the real data.js id for a given
+// collection. Returns null for an unrecognized token (deep link to a
+// removed item, a typo, someone poking at the URL) rather than throwing.
+function idFromToken(pageId, token) {
+  const map = TOKEN_MAPS[pageId];
+  return (token && map && map.fromToken.get(token)) || null;
 }
 
 async function loadSection(pageId) {
@@ -621,9 +694,9 @@ function postCardHtml(post) {
   const readMore = truncated ? '&hellip; <button class="read-more" type="button">Read more</button>' : '';
 
   return `
-    <article class="post-card" data-id="${escapeHtml(post.id)}">
+    <article class="post-card">
       <div class="post-header">
-        <button class="post-author" type="button" data-author="${escapeHtml(post.author || '')}">
+        <button class="post-author" type="button" data-author="${escapeHtml((TOKEN_MAPS.author.toToken.get(post.author)) || '')}">
           <img class="post-avatar" src="${escapeHtml(postAvatar(post, author))}" alt="" />
           <div class="post-header-text">
             <span class="post-org">${escapeHtml(author.name)}</span>
@@ -650,7 +723,10 @@ function postCardHtml(post) {
 // native controls, so only the image/text open the modal, not the video.
 function bindPostCardEvents(container, items) {
   container.querySelectorAll('.post-author').forEach(btn => {
-    btn.addEventListener('click', () => goToAuthorPage(btn.dataset.author));
+    btn.addEventListener('click', () => {
+      const authorId = idFromToken('author', btn.dataset.author);
+      if (authorId) goToAuthorPage(authorId);
+    });
   });
   container.querySelectorAll('.post-card').forEach((card, i) => {
     const img = card.querySelector('.post-media-wrap img');
@@ -765,7 +841,7 @@ function updatePostModal() {
   postModalTime.textContent = post.time;
   postModalTitle.textContent = post.title;
   postModalDescription.textContent = post.description;
-  postModalAuthorBtn.dataset.author = post.author || '';
+  postModalAuthorBtn.dataset.author = TOKEN_MAPS.author.toToken.get(post.author) || '';
 
   // keep the address bar pointed at whichever post is currently showing —
   // covers stepping prev/next through it — so copying the URL bar directly
@@ -812,7 +888,8 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') document.getElementById('postModalNext').click();
 });
 postModalAuthorBtn.addEventListener('click', () => {
-  const authorId = postModalAuthorBtn.dataset.author;
+  const authorId = idFromToken('author', postModalAuthorBtn.dataset.author);
+  if (!authorId) return;
   // silent — goToAuthorPage() sets the URL itself right after; letting
   // closePostModal do its own history.back() here would race it
   closePostModal({ silent: true });
@@ -896,7 +973,7 @@ async function syncFromLocation() {
 
   if (path === ROUTES.snaps.path || path === ROUTES.snaps.itemPath) {
     await showPage('snaps', { push: false });
-    const id = params.get(ROUTES.snaps.itemParam);
+    const id = idFromToken('snaps', params.get(ROUTES.snaps.itemParam));
     const index = id ? snapItems.findIndex(s => s.id === id) : -1;
     if (index !== -1) openSnapModal(index, { push: false });
     else closeSnapModal({ silent: true });
@@ -905,7 +982,7 @@ async function syncFromLocation() {
 
   if (path === ROUTES.scrolls.path || path === ROUTES.scrolls.itemPath) {
     await showPage('scrolls', { push: false });
-    const id = params.get(ROUTES.scrolls.itemParam);
+    const id = idFromToken('scrolls', params.get(ROUTES.scrolls.itemParam));
     const index = id ? scrollDataItems.findIndex(s => s.id === id) : -1;
     if (index !== -1) openScrollsViewer(index, { push: false });
     else closeScrollsViewer({ silent: true });
@@ -920,9 +997,9 @@ async function syncFromLocation() {
 
   if (path === ROUTES.posts.itemPath) {
     // The singular "/post/" path only ever means "show one post" — with
-    // no id (or an id that no longer exists), fall back to the Posts grid
-    // and straighten out the address bar to match what's actually shown.
-    const id = params.get(ROUTES.posts.itemParam);
+    // no id (or a token that no longer resolves to one), fall back to the
+    // Posts grid and straighten out the address bar to match what's shown.
+    const id = idFromToken('posts', params.get(ROUTES.posts.itemParam));
     const post = id && POSTS.find(p => p.id === id);
     if (!post) {
       await showPage('posts', { push: false });
@@ -942,9 +1019,9 @@ async function syncFromLocation() {
   }
 
   if (path === ROUTES.author.itemPath) {
-    // Same "no id, or an id that doesn't exist" fallback as Posts above —
-    // land cleanly on the Posts grid instead of showing an empty/broken page.
-    const id = params.get(ROUTES.author.itemParam);
+    // Same "no id, or a token that doesn't resolve" fallback as Posts
+    // above — land cleanly on the Posts grid instead of an empty page.
+    const id = idFromToken('author', params.get(ROUTES.author.itemParam));
     if (!id || !(typeof AUTHORS === 'object' && AUTHORS[id])) {
       await showPage('posts', { push: false });
       history.replaceState(null, '', gridUrl('posts'));
