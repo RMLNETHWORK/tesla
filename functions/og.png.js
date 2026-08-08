@@ -57,6 +57,16 @@ export async function onRequest(context) {
   }
 }
 
+// Satori (the renderer behind ImageResponse) can only decode PNG and
+// JPEG <img> sources — anything else (WebP, GIF, AVIF...) throws deep
+// inside its render step, past the point a try/catch on the fetch
+// itself could catch. fetchAsDataUri() has no way to know the format
+// matters, so that check belongs here instead, right before an image
+// actually reaches the element tree.
+function isSatoriCompatible(dataUri) {
+  return !!dataUri && /^data:image\/(png|jpe?g);/i.test(dataUri);
+}
+
 async function renderCard(url) {
   const category = url.searchParams.get('cat');
   const token = url.searchParams.get('id');
@@ -66,7 +76,8 @@ async function renderCard(url) {
   const data = token ? await loadData(url.origin) : null;
   const chunk = data ? findItemChunk(data.text, category, token) : null;
 
-  const sealUri = await fetchAsDataUri(`${url.origin}/assets/seal.png`);
+  const rawSealUri = await fetchAsDataUri(`${url.origin}/assets/seal.png`);
+  const sealUri = isSatoriCompatible(rawSealUri) ? rawSealUri : null;
 
   let headerRow = null;
   let title = meta.label;
@@ -85,7 +96,12 @@ async function renderCard(url) {
       const author = (data.authors && data.authors[authorId]) || {};
       const authorName = author.name || authorId || 'Tesla Archive';
       const avatarPath = postAvatar || author.avatar || '/assets/seal.png';
-      const avatarUri = (await fetchAsDataUri(`${url.origin}${avatarPath}`)) || sealUri;
+      const rawAvatarUri = await fetchAsDataUri(`${url.origin}${avatarPath}`);
+      // Falls back to the seal (already format-checked above) rather than
+      // silently dropping the avatar row entirely when the configured
+      // avatar is a format Satori can't render (e.g. .webp — see data.js's
+      // note above AUTHORS/POSTS about this).
+      const avatarUri = isSatoriCompatible(rawAvatarUri) ? rawAvatarUri : sealUri;
       const tagColor = (data.postTags && data.postTags[tag]) || '#4a0868';
 
       title = postTitle || meta.label;
