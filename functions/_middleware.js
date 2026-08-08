@@ -39,10 +39,28 @@ class VersionMetaInjector {
   }
 }
 
+// Cloudflare Pages' default single-page-app fallback (this project has no
+// top-level 404.html) serves this same index.html for any request path
+// that isn't a real static file — that's what makes clean URLs like
+// /snaps, /snaps/?snap=<id>, /post/?post=<id> work on a direct load or
+// refresh, not just an in-app click (see index.js's router). This
+// function still only sees the ORIGINAL requested path (e.g. "/snaps"),
+// not "/index.html", even though that's the content it's about to get
+// back from next() — so "is this the app shell" has to be judged the same
+// way Cloudflare itself judges it: no file extension on the last path
+// segment. /sections/*.html is excluded on purpose — those are real,
+// separate fragment files, not the shell.
+function isShellPath(pathname) {
+  if (pathname === '/index.html') return true;
+  if (pathname.startsWith('/sections/')) return false;
+  const lastSegment = pathname.split('/').pop();
+  return !lastSegment.includes('.');
+}
+
 export async function onRequest(context) {
   const { request, next, env } = context;
   const url = new URL(request.url);
-  const isShell = url.pathname === '/' || url.pathname === '/index.html';
+  const isShell = isShellPath(url.pathname);
 
   const response = await next();
 

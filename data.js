@@ -24,13 +24,13 @@
 const SNAPS = [
   {
     id: 'snap1',
-    image: 'assets/snaps/snap1.jpg',
+    image: '/assets/snaps/snap1.jpg',
     caption: 'Lakas ni Salamatin guys',
     date: '2026-08-06',
   },
   {
     id: 'snap2',
-    image: 'assets/snaps/snap2.jpg',
+    image: '/assets/snaps/snap2.jpg',
     caption: 'Pogi is Al',
     date: '2026-08-06',
   },

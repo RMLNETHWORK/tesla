@@ -119,7 +119,15 @@ menuToggle.addEventListener('click', () => {
 
 overlay.addEventListener('click', closeSidebar);
 
-// ---- Page navigation ----
+// ---------------------------------------------------------------------------
+// PAGE NAVIGATION & ROUTING — every page and every shareable item gets a
+// real, clean URL (see README → "URL scheme"). This works for direct
+// loads/refreshes/shared links too, not just in-app clicks: Cloudflare
+// Pages' default single-page-app behavior (this project has no top-level
+// 404.html) serves this same index.html for any path that isn't a real
+// file, so the router just needs to read location on boot and re-derive
+// the right view — see syncFromLocation() near the end of this file.
+// ---------------------------------------------------------------------------
 const navLinks = document.querySelectorAll('.nav-link');
 const pages = document.querySelectorAll('.page');
 const loadedSections = new Set(['home']); // home is inline, already loaded
@@ -129,6 +137,29 @@ const SECTION_RENDERERS = {
   scrolls: renderScrolls,
   posts: renderPosts,
 };
+
+// Grid path for each page, and — for the pages with a permalink-able
+// individual item — the item's own path and the query param it reads.
+// NOTE: posts' item path is deliberately the singular "/post/", distinct
+// from the plural "/posts" grid path. Authors have no grid of their own
+// (no `path`) — only ever reached as an item, from a post.
+const ROUTES = {
+  home: { path: '/' },
+  snaps: { path: '/snaps', itemPath: '/snaps/', itemParam: 'snap' },
+  scrolls: { path: '/scrolls', itemPath: '/scrolls/', itemParam: 'scroll' },
+  posts: { path: '/posts', itemPath: '/post/', itemParam: 'post' },
+  author: { itemPath: '/author/', itemParam: 'author' },
+};
+
+function gridUrl(pageId) {
+  return (ROUTES[pageId] && ROUTES[pageId].path) || '/';
+}
+
+function itemUrl(pageId, id) {
+  const route = ROUTES[pageId];
+  if (!route || !route.itemPath) return gridUrl(pageId);
+  return `${route.itemPath}?${route.itemParam}=${encodeURIComponent(id)}`;
+}
 
 async function loadSection(pageId) {
   if (loadedSections.has(pageId)) return;
@@ -154,23 +185,32 @@ async function loadSection(pageId) {
   }
 }
 
+// Shows a grid page (home/snaps/scrolls/posts). `push: false` is used when
+// the caller is just syncing the DOM to a URL that's already correct
+// (initial load, popstate, closing an item's modal) so it doesn't create a
+// duplicate/incorrect history entry.
+async function showPage(pageId, { push = true } = {}) {
+  await loadSection(pageId);
+
+  pages.forEach(p => p.classList.remove('active'));
+  const section = document.getElementById(pageId);
+  if (section) section.classList.add('active');
+
+  navLinks.forEach(l => l.classList.remove('active'));
+  document.querySelectorAll(`.nav-link[data-page="${pageId}"]`).forEach(l => l.classList.add('active'));
+
+  // leaving Scrolls entirely closes the fullscreen viewer and resets it
+  if (pageId !== 'scrolls') closeScrollsViewer({ silent: true });
+
+  if (push) history.pushState({ pageId }, '', gridUrl(pageId));
+
+  if (window.innerWidth <= 850) closeSidebar();
+}
+
 navLinks.forEach(link => {
-  link.addEventListener('click', async (e) => {
+  link.addEventListener('click', (e) => {
     e.preventDefault();
-    const target = link.getAttribute('data-page');
-
-    await loadSection(target);
-
-    pages.forEach(p => p.classList.remove('active'));
-    document.getElementById(target).classList.add('active');
-
-    navLinks.forEach(l => l.classList.remove('active'));
-    document.querySelectorAll(`.nav-link[data-page="${target}"]`).forEach(l => l.classList.add('active'));
-
-    // leaving Scrolls entirely closes the fullscreen viewer and resets it
-    if (target !== 'scrolls') closeScrollsViewer();
-
-    if (window.innerWidth <= 850) closeSidebar();
+    showPage(link.getAttribute('data-page'));
   });
 });
 
@@ -235,8 +275,24 @@ const snapModal = document.getElementById('snapModal');
 const snapModalImg = document.getElementById('snapModalImg');
 const snapModalCaption = document.getElementById('snapModalCaption');
 
-function openSnapModal(index) {
+// Tracks whether the currently-open snap got there via our own pushState
+// (a grid tap) — if so, its close button can call history.back() to
+// unwind that entry cleanly. A direct load / shared link has nothing of
+// ours to go back to, so close falls back to replacing the URL with the
+// grid's instead. See the identical pattern on Scrolls/Posts below.
+let snapOpenedViaPush = false;
+
+function openSnapModal(index, { push = true } = {}) {
   snapModalIndex = index;
+
+  const snap = snapItems[index];
+  if (push && snap) {
+    history.pushState({ modal: 'snap', id: snap.id }, '', itemUrl('snaps', snap.id));
+    snapOpenedViaPush = true;
+  } else {
+    snapOpenedViaPush = false;
+  }
+
   updateSnapModal();
   snapModal.classList.add('active');
 }
@@ -247,10 +303,23 @@ function updateSnapModal() {
   snapModalImg.src = snap.image;
   snapModalImg.alt = snap.caption;
   snapModalCaption.textContent = `${snap.caption} — ${formatDate(snap.date)}`;
+  // keep the address bar pointed at whichever snap is showing, same as
+  // stepping prev/next through the Posts modal does
+  history.replaceState({ modal: 'snap', id: snap.id }, '', itemUrl('snaps', snap.id));
 }
 
-function closeSnapModal() {
+// `silent: true` is used when something else already owns the URL change
+// (leaving the Snaps page entirely, the router syncing to a new location)
+// — it just hides the modal without touching history.
+function closeSnapModal({ silent = false } = {}) {
+  if (!snapModal.classList.contains('active')) return;
   snapModal.classList.remove('active');
+
+  if (!silent) {
+    if (snapOpenedViaPush) history.back();
+    else history.replaceState(null, '', gridUrl('snaps'));
+  }
+  snapOpenedViaPush = false;
 }
 
 document.getElementById('snapModalClose').addEventListener('click', closeSnapModal);
@@ -337,7 +406,10 @@ function resetScrollItem(item) {
   item.classList.add('paused');
 }
 
-function openScrollsViewer(index) {
+// Same "did we push this ourselves" tracking as Snaps — see there for why.
+let scrollsOpenedViaPush = false;
+
+function openScrollsViewer(index, { push = true } = {}) {
   scrollsViewerContainer.innerHTML = scrollDataItems.map((scroll, i) => `
     <div class="scroll-item" data-index="${i}">
       <video src="${escapeHtml(scroll.video)}" loop muted playsinline controls preload="metadata"></video>
@@ -367,6 +439,11 @@ function openScrollsViewer(index) {
       const video = entry.target.querySelector('video');
       if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
         video.play().catch(() => {});
+        // keep the address bar in sync with whichever scroll is currently
+        // centered — same idea as stepping through the Posts/Snaps modals
+        const i = Number(entry.target.dataset.index);
+        const scroll = scrollDataItems[i];
+        if (scroll) history.replaceState({ modal: 'scroll', id: scroll.id }, '', itemUrl('scrolls', scroll.id));
       } else {
         // scrolled away — reset to the first frame, like TikTok/Shorts/Reels
         resetScrollItem(entry.target);
@@ -381,13 +458,27 @@ function openScrollsViewer(index) {
   // jump straight to the tapped video, no smooth-scroll animation
   const target = items[index];
   if (target) target.scrollIntoView({ behavior: 'auto', block: 'start' });
+
+  const scroll = scrollDataItems[index];
+  if (push && scroll) {
+    history.pushState({ modal: 'scroll', id: scroll.id }, '', itemUrl('scrolls', scroll.id));
+    scrollsOpenedViaPush = true;
+  } else {
+    scrollsOpenedViaPush = false;
+  }
 }
 
-function closeScrollsViewer() {
+function closeScrollsViewer({ silent = false } = {}) {
   if (!scrollsModal.classList.contains('active')) return;
   scrollsViewerContainer.querySelectorAll('.scroll-item').forEach(resetScrollItem);
   if (scrollsViewerObserver) scrollsViewerObserver.disconnect();
   scrollsModal.classList.remove('active');
+
+  if (!silent) {
+    if (scrollsOpenedViaPush) history.back();
+    else history.replaceState(null, '', gridUrl('scrolls'));
+  }
+  scrollsOpenedViaPush = false;
 }
 
 document.getElementById('scrollsModalClose').addEventListener('click', closeScrollsViewer);
@@ -419,16 +510,12 @@ function postAvatar(post, author) {
 
 // ---- Share link helpers — Posts only; Snaps/Scrolls have no share UI ----
 
-// Builds an absolute, shareable link to one specific post as `?post=<id>`
-// on the current page. Built from `location`, not a hardcoded origin, so it
-// resolves correctly whether the site lives at a domain root or a subpath
-// (e.g. a GitHub Pages project site).
+// Builds an absolute, shareable permalink to one specific post, e.g.
+// https://tesla.lynxzora.online/post/?post=<id> — see ROUTES/itemUrl above
+// for the URL scheme. Built from `location.origin`, not a hardcoded
+// domain, so it resolves correctly wherever the site is actually deployed.
 function getPostShareUrl(post) {
-  const url = new URL(location.href);
-  url.search = '';
-  url.hash = '';
-  url.searchParams.set('post', post.id);
-  return url.toString();
+  return new URL(itemUrl('posts', post.id), location.origin).toString();
 }
 
 let toastTimer = null;
@@ -496,6 +583,25 @@ async function sharePost(post) {
   showToast(copied ? 'Link copied!' : 'Could not copy link');
 }
 
+// Feed cards show a short excerpt instead of the full article so the Posts
+// page doesn't turn into a wall of text; "Read more" opens the same
+// fullscreen post modal used everywhere else (tapping the image or body
+// already does this — see bindPostCardEvents), which still shows the full,
+// untruncated description. This function only ever touches feed/card markup.
+const EXCERPT_LENGTH = 220; // characters — roughly 2–3 lines at the feed's font size
+
+function getExcerpt(text, maxLength = EXCERPT_LENGTH) {
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLength) return { text: clean, truncated: false };
+
+  // Cut at the last whole word before the limit so the excerpt doesn't end
+  // mid-word.
+  const cut = clean.slice(0, maxLength);
+  const lastSpace = cut.lastIndexOf(' ');
+  const excerpt = (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trim();
+  return { text: excerpt, truncated: true };
+}
+
 // Shared markup for a single post card — used on both the Posts feed and an
 // author's own page. Media sits above the title/description; the author row
 // is its own clickable control, separate from the media/body click targets.
@@ -507,6 +613,12 @@ function postCardHtml(post) {
     : post.image
       ? `<img class="post-media" src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" />`
       : '';
+
+  const { text: excerptText, truncated } = getExcerpt(post.description);
+  // The button is just a visual cue — it sits inside .post-body, which
+  // already opens the post modal on click (see bindPostCardEvents), so the
+  // click naturally bubbles there with no extra wiring needed.
+  const readMore = truncated ? '&hellip; <button class="read-more" type="button">Read more</button>' : '';
 
   return `
     <article class="post-card" data-id="${escapeHtml(post.id)}">
@@ -526,7 +638,7 @@ function postCardHtml(post) {
       ${media ? `<div class="post-media-wrap">${media}</div>` : ''}
       <div class="post-body">
         <h3 class="post-title">${escapeHtml(post.title)}</h3>
-        <p class="post-description">${escapeHtml(post.description)}</p>
+        <p class="post-description">${escapeHtml(excerptText)}${readMore}</p>
       </div>
     </article>
   `;
@@ -614,9 +726,21 @@ const postModalTitle = document.getElementById('postModalTitle');
 const postModalDescription = document.getElementById('postModalDescription');
 const postModalAuthorBtn = document.getElementById('postModalAuthor');
 
-function openPostModal(items, index) {
+// Same "did we push this ourselves" tracking as Snaps/Scrolls — see there.
+let postOpenedViaPush = false;
+
+function openPostModal(items, index, { push = true } = {}) {
   postModalItems = items;
   postModalIndex = index;
+
+  const post = items[index];
+  if (push && post) {
+    history.pushState({ modal: 'post', id: post.id }, '', itemUrl('posts', post.id));
+    postOpenedViaPush = true;
+  } else {
+    postOpenedViaPush = false;
+  }
+
   updatePostModal();
   postModal.classList.add('active');
 }
@@ -644,19 +768,25 @@ function updatePostModal() {
   postModalAuthorBtn.dataset.author = post.author || '';
 
   // keep the address bar pointed at whichever post is currently showing —
-  // covers opening the modal and stepping prev/next through it — so
-  // copying the URL bar directly also works, not just the share button
-  history.replaceState(null, '', getPostShareUrl(post));
+  // covers stepping prev/next through it — so copying the URL bar directly
+  // also works, not just the share button
+  history.replaceState({ modal: 'post', id: post.id }, '', itemUrl('posts', post.id));
 }
 
-function closePostModal() {
+// `silent: true` is used when something else already owns the URL change
+// (the router syncing to a new location, or handing off to the author
+// page — see goToAuthorPage) — it just hides the modal without touching
+// history.
+function closePostModal({ silent = false } = {}) {
   if (!postModal.classList.contains('active')) return;
   postModal.classList.remove('active');
   postModalMedia.innerHTML = ''; // stop any playing video
 
-  const clean = new URL(location.href);
-  clean.search = '';
-  history.replaceState(null, '', clean.toString());
+  if (!silent) {
+    if (postOpenedViaPush) history.back();
+    else history.replaceState(null, '', gridUrl('posts'));
+  }
+  postOpenedViaPush = false;
 }
 
 document.getElementById('postModalClose').addEventListener('click', closePostModal);
@@ -683,7 +813,9 @@ document.addEventListener('keydown', (e) => {
 });
 postModalAuthorBtn.addEventListener('click', () => {
   const authorId = postModalAuthorBtn.dataset.author;
-  closePostModal();
+  // silent — goToAuthorPage() sets the URL itself right after; letting
+  // closePostModal do its own history.back() here would race it
+  closePostModal({ silent: true });
   goToAuthorPage(authorId);
 });
 
@@ -691,7 +823,12 @@ postModalAuthorBtn.addEventListener('click', () => {
 // AUTHOR PAGE — reached only by clicking an author on a post (not a sidebar
 // destination). Shows that author's own posts, newest first.
 // ---------------------------------------------------------------------------
-function goToAuthorPage(authorId) {
+// Same "did we push this ourselves" tracking as Snaps/Scrolls/Posts — see
+// Snaps above for why it matters (skipping it is what caused the Snaps
+// double-close bug).
+let authorOpenedViaPush = false;
+
+function goToAuthorPage(authorId, { push = true } = {}) {
   const author = getAuthor(authorId);
   const authorPosts = [...POSTS].filter(p => p.author === authorId).sort(byNewestFirst);
 
@@ -708,46 +845,122 @@ function goToAuthorPage(authorId) {
     bindPostCardEvents(feed, authorPosts);
   }
 
-  closeScrollsViewer();
-  closeSnapModal();
-  closePostModal();
+  // silent — this function owns the URL change below, so the individual
+  // modals shouldn't also try to touch history on their way out
+  closeScrollsViewer({ silent: true });
+  closeSnapModal({ silent: true });
+  closePostModal({ silent: true });
 
   pages.forEach(p => p.classList.remove('active'));
   document.getElementById('author').classList.add('active');
   navLinks.forEach(l => l.classList.remove('active')); // not a sidebar destination
+
+  // real, shareable/bookmarkable link — same push-first-then-done pattern
+  // as openPostModal/openSnapModal, so closing (authorBack) can unwind it
+  // with a single history.back() instead of stacking a second entry
+  if (push) {
+    history.pushState({ page: 'author', id: authorId }, '', itemUrl('author', authorId));
+    authorOpenedViaPush = true;
+  } else {
+    history.replaceState({ page: 'author', id: authorId }, '', itemUrl('author', authorId));
+    authorOpenedViaPush = false;
+  }
 
   window.scrollTo({ top: 0, behavior: 'auto' });
   if (window.innerWidth <= 850) closeSidebar();
 }
 
 document.getElementById('authorBack').addEventListener('click', () => {
-  document.querySelector('.nav-link[data-page="posts"]').click();
+  if (authorOpenedViaPush) {
+    history.back();
+  } else {
+    // reached this author page directly (a shared link, a refresh) — there's
+    // nothing of ours to go back to, so just navigate to Posts normally
+    showPage('posts');
+  }
+  authorOpenedViaPush = false;
 });
 
 // ---------------------------------------------------------------------------
-// SHARED POST LINKS — if the page was opened via a `?post=<id>` URL (see
-// sharePost() above), land straight on the Posts page with that post open,
-// instead of the usual Home. Unknown/removed ids are ignored quietly.
+// ROUTER — reads location.pathname/search and puts the app in the matching
+// state. Runs once on boot (covers a direct load, a refresh, and a shared
+// link alike — all three land here the same way, since Cloudflare Pages
+// serves this same index.html for any of these paths) and again on every
+// `popstate` (browser back/forward). Always called with push:false on the
+// individual open*() calls below: the URL here is already correct, so
+// there's nothing new to push — only the DOM needs to catch up to it.
 // ---------------------------------------------------------------------------
-async function openSharedPostFromUrl() {
-  const sharedId = new URLSearchParams(location.search).get('post');
-  if (!sharedId) return;
+async function syncFromLocation() {
+  const path = location.pathname;
+  const params = new URLSearchParams(location.search);
 
-  const post = POSTS.find(p => p.id === sharedId);
-  if (!post) return;
+  if (path === ROUTES.snaps.path || path === ROUTES.snaps.itemPath) {
+    await showPage('snaps', { push: false });
+    const id = params.get(ROUTES.snaps.itemParam);
+    const index = id ? snapItems.findIndex(s => s.id === id) : -1;
+    if (index !== -1) openSnapModal(index, { push: false });
+    else closeSnapModal({ silent: true });
+    return;
+  }
 
-  activePostTag = 'All'; // guarantee the shared post is actually in the feed
-  await loadSection('posts');
-  renderPosts();
+  if (path === ROUTES.scrolls.path || path === ROUTES.scrolls.itemPath) {
+    await showPage('scrolls', { push: false });
+    const id = params.get(ROUTES.scrolls.itemParam);
+    const index = id ? scrollDataItems.findIndex(s => s.id === id) : -1;
+    if (index !== -1) openScrollsViewer(index, { push: false });
+    else closeScrollsViewer({ silent: true });
+    return;
+  }
 
-  pages.forEach(p => p.classList.remove('active'));
-  document.getElementById('posts').classList.add('active');
-  navLinks.forEach(l => l.classList.remove('active'));
-  document.querySelectorAll('.nav-link[data-page="posts"]').forEach(l => l.classList.add('active'));
+  if (path === ROUTES.posts.path) {
+    await showPage('posts', { push: false });
+    closePostModal({ silent: true });
+    return;
+  }
 
-  const items = [...POSTS].sort(byNewestFirst);
-  const index = items.findIndex(p => p.id === sharedId);
-  if (index !== -1) openPostModal(items, index);
+  if (path === ROUTES.posts.itemPath) {
+    // The singular "/post/" path only ever means "show one post" — with
+    // no id (or an id that no longer exists), fall back to the Posts grid
+    // and straighten out the address bar to match what's actually shown.
+    const id = params.get(ROUTES.posts.itemParam);
+    const post = id && POSTS.find(p => p.id === id);
+    if (!post) {
+      await showPage('posts', { push: false });
+      history.replaceState(null, '', gridUrl('posts'));
+      return;
+    }
+
+    activePostTag = 'All'; // guarantee the linked post is actually in the feed
+    await showPage('posts', { push: false });
+    renderPosts(); // showPage() only renders on a section's first load — if the
+                    // Posts feed was already showing a filtered view, this
+                    // forces it back to "All" so it actually matches activePostTag
+    const items = [...POSTS].sort(byNewestFirst);
+    const index = items.findIndex(p => p.id === id);
+    if (index !== -1) openPostModal(items, index, { push: false });
+    return;
+  }
+
+  if (path === ROUTES.author.itemPath) {
+    // Same "no id, or an id that doesn't exist" fallback as Posts above —
+    // land cleanly on the Posts grid instead of showing an empty/broken page.
+    const id = params.get(ROUTES.author.itemParam);
+    if (!id || !(typeof AUTHORS === 'object' && AUTHORS[id])) {
+      await showPage('posts', { push: false });
+      history.replaceState(null, '', gridUrl('posts'));
+      return;
+    }
+
+    goToAuthorPage(id, { push: false });
+    return;
+  }
+
+  // Home ("/") and anything unrecognized both land on Home — Cloudflare's
+  // SPA fallback already served this same shell for an unrecognized path,
+  // so this just avoids showing a blank page for a typo'd URL.
+  await showPage('home', { push: false });
 }
 
-openSharedPostFromUrl();
+window.addEventListener('popstate', syncFromLocation);
+
+syncFromLocation();

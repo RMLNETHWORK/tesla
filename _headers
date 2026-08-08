@@ -4,6 +4,34 @@
 /index.html
   Cache-Control: no-cache
 
+# App-shell routes — see README -> "URL scheme". functions/_middleware.js
+# is what actually enforces no-cache on these (it overrides whatever this
+# file says), but listing them here too keeps this file honest about what
+# the Function does, in case anyone reads it looking for the full picture.
+/snaps
+  Cache-Control: no-cache
+
+/snaps/
+  Cache-Control: no-cache
+
+/scrolls
+  Cache-Control: no-cache
+
+/scrolls/
+  Cache-Control: no-cache
+
+/posts
+  Cache-Control: no-cache
+
+/post
+  Cache-Control: no-cache
+
+/post/
+  Cache-Control: no-cache
+
+/author/
+  Cache-Control: no-cache
+
 /sections/*
   Cache-Control: no-cache
 

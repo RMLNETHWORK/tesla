@@ -1044,6 +1044,22 @@ a { color: inherit; }
   white-space: pre-line; /* lets \n\n in data.js description strings render as paragraph breaks */
 }
 
+/* feed-card excerpt only — the full post modal never truncates, so this
+   button never appears there */
+.read-more {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--primary);
+  font-size: inherit;
+  font-weight: 600;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.read-more:hover { text-decoration: underline; }
+
 /* --- media, edge-to-edge like a Facebook attachment, sits above the text --- */
 .post-media-wrap { line-height: 0; }
 

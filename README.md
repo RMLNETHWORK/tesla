@@ -70,6 +70,13 @@ Shown as a filterable feed on the Posts page. Filter pills at the top of the
 page are generated from the `POST_TAGS` array in `data.js` — add a new tag
 string there and a filter pill for it appears automatically.
 
+Long `description` text is automatically shortened to a ~220-character
+excerpt on the feed card (cut at the last whole word, never mid-sentence),
+with a "Read more" link that opens the same fullscreen post view used
+everywhere else — which always shows the full, untruncated text. This is
+`getExcerpt()` in `index.js`; nothing to configure in `data.js`, it just
+happens for anything over that length.
+
 ## Adding media files
 
 Drop the actual image/video files anywhere under `assets/` (subfolders like
@@ -100,12 +107,61 @@ _headers               Cache-Control rules for Cloudflare Pages
 
 ### How a page navigation works
 
-Sidebar/home links carry a `data-page` attribute. Clicking one:
+Sidebar/home links carry a `data-page` attribute. Clicking one calls
+`showPage()` in `index.js`, which:
 1. Fetches `sections/<page>.html` once (cached after first load) and injects it.
 2. Calls that page's renderer (`renderSnaps`, `renderScrolls`, or `renderPosts`
    in `index.js`), which reads from `data.js`, sorts newest-first (or filtered
    for Posts), and builds the DOM.
-3. Swaps the `.active` page and highlights the matching sidebar link.
+3. Swaps the `.active` page, highlights the matching sidebar link, and
+   updates the address bar (see "URL scheme" below).
+
+### URL scheme
+
+The site is still a single `index.html` — there's no per-route file on
+disk — but every page and every individual Snap/Scroll/Post gets its own
+real, shareable, refresh-safe URL:
+
+| Page          | URL                          |
+|---------------|-------------------------------|
+| Home          | `/` (or `/#`)                 |
+| Tesla Snaps   | `/snaps`                      |
+| Tesla Scrolls | `/scrolls`                    |
+| Tesla Posts   | `/posts`                      |
+| One Snap      | `/snaps/?snap=<id>`           |
+| One Scroll    | `/scrolls/?scroll=<id>`       |
+| One Post      | `/post/?post=<id>` *(singular "post", unlike the plural "/posts" grid)* |
+| An author's page | `/author/?author=<id>` *(no grid of its own — only reached from a post)* |
+
+How it works, end to end:
+
+1. **In-app navigation** — clicking a sidebar link, a grid thumbnail, or
+   stepping prev/next through a lightbox calls `history.pushState()` (for
+   opening something new) or `history.replaceState()` (for stepping
+   through an already-open item), so the address bar always matches
+   what's on screen. `window.addEventListener('popstate', ...)` re-syncs
+   the DOM when the user hits the browser's Back/Forward buttons.
+2. **Direct loads, refreshes, and shared links** — `index.js`'s
+   `syncFromLocation()` runs once on boot, reads `location.pathname` and
+   `location.search`, and puts the app straight into the matching state
+   (e.g. Posts feed with the linked post already open). This is exactly
+   what runs after a `popstate` too — one router, two triggers.
+3. **The server side of clean URLs** — this project has no top-level
+   `404.html`, which makes Cloudflare Pages treat it as a single-page app
+   by default: any request path that isn't a real file (`/snaps`,
+   `/post/?post=xyz`, etc.) transparently gets served this same
+   `index.html`, with the URL in the browser's address bar left
+   untouched. **Don't add a `404.html` to this project** unless you also
+   add a `_redirects` rule (`/* /index.html 200`) to replace this default
+   behavior — otherwise every clean URL above will 404 on a direct
+   load/refresh, even though in-app clicks would still work fine.
+4. `functions/_middleware.js` (see "Cache-busting" below) recognizes these
+   same clean routes as "the app shell" so they get version-stamped and
+   `no-cache`d exactly like `/` and `/index.html` already were.
+
+Snaps/Scrolls/Posts author pages (reached by tapping an author on a post)
+are intentionally left out of this scheme — they're not a sidebar
+destination and don't get their own URL, same as before.
 
 ### Theme
 
