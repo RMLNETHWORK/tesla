@@ -154,6 +154,14 @@ const AUTHORS = {
     name: 'Juan',
     avatar: '/assets/anon.png',
   },
+  'LEBRON JAMES': {
+    name: 'LEBRON JAMES',
+    avatar: '/assets/anon.png',
+  },
+  'CT': {
+    name: 'CT',
+    avatar: '/assets/anon.png',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -280,7 +288,7 @@ const POSTS = [
     tag: 'PT - EffCom',
     author: 'Chan',
     date: '2026-08-09',
-    time: '1:44 PM',
+    time: '01:44 PM',
   },
   {
     id: 'effcom/post13',
@@ -389,5 +397,23 @@ const POSTS = [
     author: 'Juan',
     date: '2026-08-09',
     time: '07:14 PM',
+  },
+  {
+    id: 'effcom/post25',
+    title: "RUBIK'S CUBE THOUGHT ME",
+    description: "At first, I thought the Rubik's cube was just a colorful toy that was difficult to play with, but I became interested in it because I had wanted to learn how to solve it for a long time. In the beginning, it was exhausting and frustrating.the kind of experience where you’d just finish solving one side, only to mess everything up while trying to work on the other.still Kept trying \n\nAs I practice, I learned that the Rubik's cube is not about being smart or being fast, it requires focus, patience and determination. when I make a mistake, I go back, I find out where I went wrong and I try again,\n\nThe Rubik's cube taught me that a problem becomes easier when you take it one step at a time, rather than trying to solve it all at once.\n\nSolving a Rubik’s Cube gives me a sense of accomplishment because I know that every successful solve comes from practice and perseverance. It reminds me that life can sometimes feel like a scrambled puzzle, but being patient and refusing to give up can help me find a way forward.\nA Rubik’s Cube may be small, but the lessons it teaches me are much bigger",
+    tag: 'PT - EffCom',
+    author: 'LEBRON JAMES',
+    date: '2026-08-09',
+    time: '07:30 PM',
+  },
+  {
+    id: 'effcom/post26',
+    title: "Buried in Schoolwork",
+    description: "Im pretty sure everyone has procrastinated at least once in their life, so im sure that many of you can relate. Today, I want to share one of the worst hardships I faced because of procrastinating.\n\nDuring the 2nd half of 9th grade, I really did not focus that much on school. School had also become fast-paced because DepEd wanted to revert back to the old schedule. This meant that there was less time between deadlines, making it harder for me to keep up with my schoolwork. Because of that, the activities, assignments and the projects kept piling up on me. Since I was also trying to complete those missed activities, it made me miss some of the following activities. It put me through some kind of inescapable cycle. I only managed to pass that year because I managed to rush those activities and projects in a few days, along with the patience and kindness my teachers had.\n\nAlthough I still have this kind of ongoing battle with procrastination. This experience serves as a reminder of how much harder things can become when I continue to put them off.",
+    tag: 'PT - EffCom',
+    author: 'CT',
+    date: '2026-08-09',
+    time: '07:37 PM',
   },
 ];
