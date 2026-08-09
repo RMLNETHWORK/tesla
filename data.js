@@ -90,6 +90,14 @@ const AUTHORS = {
     name: 'Miko Aguilar',
     avatar: '/assets/anon.png',
   },
+  'Andrewiee': {
+    name: 'Andrewiee',
+    avatar: '/assets/anon.png',
+  },
+  'YOU\'RE ON YOUR OWN, KID': {
+    name: 'YOU\'RE ON YOUR OWN, KID',
+    avatar: '/assets/anon.png',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -181,5 +189,23 @@ const POSTS = [
     author: 'Miko Aguilar',
     date: '2026-08-09',
     time: '12:39 AM',
+  },
+  {
+    id: 'effcom/post9',
+    title: "New hobby, New friends, Be Consistent",
+    description: "Starting a new hobby opens doors we never expected, leading us to meet people who share our interests and bring fresh energy into our lives. Whether it’s painting, playing a sport, learning an instrument, or exploring something creative, this new activity connects us with like-minded friends who encourage us, celebrate our small wins, and stay beside us as we improve. These bonds grow naturally—rooted in shared effort, curiosity, and the joy of discovering something wonderful together\n\nWhat makes this journey truly meaningful is choosing to be consistent. Showing up regularly even when progress feels slow turns our new hobby into a beloved habit, and casual acquaintances into trusted friends. Consistency builds skill, strengthens relationships, and teaches us that great things don’t happen overnight—they grow steadily, one step, one practice, and one shared moment at a time.",
+    tag: 'PT - EffCom',
+    author: 'Andrewiee',
+    date: '2026-08-09',
+    time: '10:25 AM',
+  },
+  {
+    id: 'effcom/post10',
+    title: "FINDING MY REAL CIRCLE ",
+    description: "When I entered a new stage in my life, I thought that having many friends was important. I enjoyed having people around me because I always had someone to talk to, laugh with, and spend time with. I thought that as long as we had fun together, we were already true friends. However, as I grew older, I realized that friendship is more meaningful than I first thought.\n\nAs time passed, I became closer to some of my friends. We shared stories, helped each other with problems, and created memories together. There were also times when we had misunderstandings and disagreements. These experiences taught me that friendship is not always perfect. It requires patience, understanding, and communication. I also realized that some people may come into our lives for only a short time, while others will stay and continue to support us.\n\nMy friends have helped me understand myself better. They taught me to be more confident, to accept my mistakes, and to learn from my experiences. They also reminded me that I do not need to change myself just to be accepted by others. Being surrounded by people who respect and support me gives me the confidence to become a better version of myself.\n\nNow, I understand that having a real circle is not about having many friends. It is about having genuine people who care about you and support you even during difficult times. As I grew older, I am learning that growing up also means choosing the people who bring good influence into my life. I am thankful for the friends who stayed, accepted me, and helped me grow. In the end, true friendship is not measured by the number of people around you, but by the trust, respect, support, and memories that you share with them.",
+    tag: 'PT - EffCom',
+    author: 'YOU\'RE ON YOUR OWN, KID',
+    date: '2026-08-09',
+    time: '12:01 AM',
   },
 ];
