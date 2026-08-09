@@ -86,6 +86,10 @@ const AUTHORS = {
     name: 'CK',
     avatar: '/assets/anon.png',
   },
+  'Miko Aguilar': {
+    name: 'Miko Aguilar',
+    avatar: '/assets/anon.png',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -168,5 +172,14 @@ const POSTS = [
     author: 'CK',
     date: '2026-08-08',
     time: '08:33 PM',
+  },
+  {
+    id: 'effcom/post8',
+    title: "A Friend, A Memory, A Lesson",
+    description: "When I Felt Like I Couldn't\nWhen I was a kid, I often felt like I couldn't do the things I wanted because my mother would get mad at me. I wanted to play outside, spend time with my friends, and enjoy the simple things that other kids enjoyed. However, I was always worried that my mother might get angry if I did something she did not like. There were times when I would just stay at home, sit quietly, and cry because I felt like I had no choice. I was still young, so I did not really understand why I felt that way. I only knew that I wanted to enjoy my childhood, but I was scared of doing something wrong.\n\nThe Friend Who Was Always There\nWhenever I was feeling sad or crying, my friend would always come to my house and ask me to play. Sometimes, I did not want to play because I was still upset, but my friend would stay and try to make me laugh. We would play together, talk about random things, and forget about what was bothering me. Even though my friend probably did not realize it, those simple visits meant a lot to me. They gave me something to look forward to whenever I was having a difficult day.\n\nAs time passed, I started to appreciate those moments more. My friend showed me that being at home did not always have to mean being sad or afraid. There were still people who cared about me and wanted to see me happy. Slowly, I became more comfortable expressing myself and doing things that made me happy. I also started understanding that I could not control how other people reacted, but I could control how I faced my own fears.\n\nLooking back now, I realize that my childhood experiences taught me something I will always remember: I need to be brave even when I am afraid. I learned that being brave does not mean that I never feel scared, sad, or unsure. It means that I continue moving forward despite those feelings. My friend helped me experience happiness during a time when I often felt restricted and afraid, but those experience helped me become brave person I am still trying to be today.",
+    tag: 'PT - EffCom',
+    author: 'Miko Aguilar',
+    date: '2026-08-09',
+    time: '12:39 AM',
   },
 ];
