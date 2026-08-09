@@ -98,6 +98,10 @@ const AUTHORS = {
     name: 'YOU\'RE ON YOUR OWN, KID',
     avatar: '/assets/anon.png',
   },
+  'dro': {
+    name: 'dro',
+    avatar: '/assets/anon.png',
+  },
 };
 
 // ---------------------------------------------------------------------------
