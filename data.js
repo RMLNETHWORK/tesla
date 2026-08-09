@@ -202,6 +202,10 @@ const AUTHORS = {
     name: 'Dr. Padampadam',
     avatar: '/assets/anon.png',
   },
+  'idkplsignorethis': {
+    name: 'idkplsignorethis',
+    avatar: '/assets/anon.png',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -545,5 +549,14 @@ const POSTS = [
     author: 'Dr. Padampadam',
     date: '2026-08-09',
     time: '09:24 PM',
+  },
+  {
+    id: 'effcom/post37',
+    title: "First Step of Healing ",
+    description: "These past few months, I feel so lost and disconnected. The feeling of losing yourself slowly, day by day. The feeling where you don't know where to go anymore—‘cause everywhere feels so heavy and overwhelming. The feeling when you’re conflicted about what you truly feel, because you always tend to project positivity, even during your lowest point in life. But despite all of this—despite feeling so exhausted and having the desire to give up—there are people who have saved my life by simply easing my burdens and making my days lighter.\n\nNovember to December 2025, the worst time in my life so far. It was one of the most hard moments in my life—I was physically, mentally, and emotionally sick. School activities kept piling up, my missed quizzes and lessons, the pressure, relationship and family problems, health problems, and insecurities— all at once. It was really too much to carry all these. Every single day, I would always bring this heavy feeling in my chest. But even if I feel really drained, I don't actually show that I'm actually struggling.\n\nI'm the type of person who's really loud and energetic, making sure that everyone is having a great time. The type of person who keeps on smiling and laughs at everything. The type of person who can light up a room's mood. That's why I'm really struggling to open up—because for others, they see me as someone who's really carefree. But in reality, it's just my way of coping. Yes, it is truly my personality where I'm all excited and talkative. It's just, whenever I'm surrounded with positive people, it makes me forget all my problems completely.\n\nI needed help, but of course, I didn't want to burden others with my struggles. Also, I really don’t like asking for help because I grew up doing things all by myself.\n\nI can do this alone, right..?\n\nWrong. I absolutely cannot do this all by myself. Bottling up emotions is not a good idea—it would just make things worse.\n\nFinally, that one day came. I broke down the wall. I did not hold back my emotions. I told my friends everything I went through—hoping that finally opening up would end this miserable cycle. It felt really amazing to cry after holding back for so long. I'm actually really grateful they were there during that time, it genuinely melts my soul. I've never felt this vulnerable, even with my own family.\n\nBut when I'm alone, the heaviness rushes back. I thought I was doing better. I thought I was healed. But it never left—I was just distracted. I was really frustrated and overwhelmed of how things are for me.\n\nHowever, realization hit me. Although the miserable cycle doesn't seem to end, one thing I realized for sure is that healing isn't a straight line, and acknowledging my pain is the first step toward actually processing it instead of just hiding from it. It doesn't magically disappear, but rather it disappears really slowly. I just need to understand further why I feel this way so that I am finally ready to share my struggles with the people who can do the same as well.\n\nThank you so much for reading!;) I wrote this while crying lolol",
+    tag: 'PT - EffCom',
+    author: 'idkplsignorethis',
+    date: '2026-08-09',
+    time: '09:50 PM',
   },
 ];
