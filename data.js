@@ -214,6 +214,10 @@ const AUTHORS = {
     name: 'Ildefonso Jose T. Vargas (Ij)',
     avatar: '/assets/anon.png',
   },
+  'SailedWhisper': {
+    name: 'SailedWhisper',
+    avatar: '/assets/anon.png',
+  },
   'Nzkeei': {
     name: 'Nzkeei',
     avatar: '/assets/anon.png',
@@ -590,6 +594,15 @@ const POSTS = [
   },
   {
     id: 'effcom/post39',
+    title: "How an Indie Game shaped me",
+    description: "We often associate our biggest life-changing lessons with older individuals or life altering failures. Yet the source of my redefined perspective came through an unconventional outlet- a video game titled Undertale. It completely altered the way that I perceive the way that I operate in this world and the way that I interact with others.\n\nMy entire worldview was irrevocably changed as I developed a comprehensive understanding that kindness is a difficult but incredibly worthwhile choice.\n\nIt is remarkably easy for someone to be selfish or lashing in trying circumstances. However, real strength isn’t in the way that an argument is concluded or a battle is won- it’s in the empathy and perseverance to acknowledge that every individual we come into contact with is fighting an internal war. This fact instilled genuine responsibility: every single choice we create in a vacuum, in reality leaves its marks, indelible and irremovable on everyone around us. Now, I carry the same mission every day: embrace empathetic endeavors despite how incredibly taxing it may be.",
+    tag: 'PT - EffCom',
+    author: 'SailedWhisper',
+    date: '2026-08-09',
+    time: '10:34 PM',
+  },
+  {
+    id: 'effcom/post40',
     title: "Realizations become our lessons",
     description: "I remember when the enrollment for senior high in national had just recently been announced, \"oh it's almost time to enroll na pala\" I said to myself, at that time, I thought that senior high would just be like junior high. It was a little easy, you have plenty of time to hangout with friends and you had just the right amount of school projects or activities.\n\nThen enrollment came, I thought that it would also be the same as junior high enrollment, quick and easy, but when I arrived at school and went to the enrollment room, it was the opposite of that. We needed to attend an orientation about the importance of choosing the best career path for ourselves, at first I was stunned because I was so used to the past enrollments, but it did made sense after a short while since it's the beginning of senior high. After the orientation, we were told that we needed to be interviewed so that they could guide us to the necessary track to help us in our career path.\n\nFast forward to the second and the third weeks of classes, It was pretty tame, and i thought that they would give us plenty more assignments or activities, little did I know that they would answer that thought. Activities after activities, assignments after assignments kept piling up as we go through the week, I felt exhausted at those days when we had so many things to do and while feeling that, I come to remember what I said before enrollment, \"it would just be like junior high\". I was totally wrong, and I underestimated that it would actually be this hard. And with that thought, I learned that, junior high and senior high are two distinct stages in your academic life, you shouldn't underestimate one thing and assume that it would be the same as the last thing because it would make things harder. So before you think that it would be easy, look at it thoroughly if you can even do it, and if you can't, then learn about it.If you can learn one thing, you can learn a lot more things just because of that one thing.",
     tag: 'PT - EffCom',
@@ -598,7 +611,7 @@ const POSTS = [
     time: '10:39 PM',
   },
   {
-    id: 'effcom/post40',
+    id: 'effcom/post41',
     title: "The Cooler Brother",
     description: "Growing up, I've received plenty of comments saying that growing up with older siblings is a privilege. And to be honest, they were damn right. It was always an amazing feeling to be recognized based on who you're related to. And in this case, it was my cooler older brother.\n\nIf you've known me for a while, you'll know that most of the things I do are solely because my brother did them. But has it ever occurred to you exactly why I did them? In order for me to answer that, we need to take a trip down memory lane.\n\nBack when I was a kid, me and my brother would usually play around and do some rough housing from time to time. Sure, we'd get into fights every week or so, but we'd always make up to each other. Why you may ask? Simple. Because we're brothers. No matter what kind of rabbit hole you get yourself into, older brothers are always there to lend a hand.\n\nAs I progress through elementary, my older brother entered highschool. And ever since then, he'd stay at our grandparents house so he could save on the tricycle fare. We'd only fetch him there every friday, So I only got to see him during weekends. But that was merely enough to break our bond. Because as a brother, It is important to maintain your relationship with your sibling not simply because you are related, but because they were there for you when you weren't feeling like yourself. It's only right to be there for them when they were there for you.\n\nWhen my older brother hit a growth spurt, Young me thought he was the biggest and coolest guy in the world now that he's a giant. He'd also frequently tell me stories about the fights he's been in. He was the coolest teenager back then in his time.\n\nAs I grow older, I seem to realise that I'm following in my brother's footsteps. Because growing up, he was my role model. I mean, who wouldn't wanna be someone as cool as him? I'll never be half the man my brother is. Which is why I need to keep on striving. Not for me to become like my brother. But to become better than him. Just like he once said \"Me, Daws, and Ate have a younger brother na magiging mas maurag pa samo.\" And with that, I conclude.",
     tag: 'PT - EffCom',
@@ -607,7 +620,7 @@ const POSTS = [
     time: '10:41 PM',
   },
   {
-    id: 'effcom/post41',
+    id: 'effcom/post42',
     title: "The Biggest Lesson I Learned From My Mom",
     description: "My mom.\nShe always compares me to other people.\n_\"Why can’t you be like your sister?\"_\n_\"Look at her, she's good, What about you?\"_\n\nEven though we all have different strengths, different dreams, different timelines...\nShe doesn’t appreciate the things she should understand.\nMy effort. My silent battles. The small progress that means so much to me.\n\nAnd the hardest part?\nIt’s my own mom who brings me down.\n\nBecause of what they said, I learned to become a different person.\nI proved them right.\nI started drinking. I hung out anywhere.\nI went from place to place just to distract myself and forget.\n\nBut I realized... *I was wrong.*\nThere was a better way.\nThere was something better to prove.\n\nI still accept the hurtful words.\nIt still hurts. It’s still heavy when that’s how they react and treat me.\nBut it’s okay now.\n\n*Because I’m using it as motivation.*\nJust because they said bad things doesn’t mean you give up.\nYou have to get up.\nYou have to prove them wrong.\n\nNot to get back at them. For myself.\nTo prove that I’m not who they say I am when they’re angry.\nThat I’m not \"a failure.\"\nThat I have my own time. My own story. And I deserve to be valued too.\n\nTo every Nzkeei out there who’s also hurting at home:\nI see you. I know you’re tired. You want to give up.\nBut please don’t.\n\nYou will fall. You will cry. But you will rise again.\nOne day, the people who compared you will be the ones surprised by who you’ve become.",
     tag: 'PT - EffCom',
@@ -616,7 +629,7 @@ const POSTS = [
     time: '10:46 PM',
   },
   {
-    id: 'effcom/post42',
+    id: 'effcom/post43',
     title: "Beyond the Weights: How Discipline and the Gym Completely Transformed My Life",
     description: "For a long time, I thought \"discipline\" was just a buzzword people threw around to make waking up at 5:00 AM sound appealing. I used to rely entirely on motivation. If I felt like working out, I wouldn’t tired, stressed, or just lazy, I’d stay on the couch. Unsurprisingly, that approach got me nowhere not in fitness, and certainly not in life.\n\nEverything shifted the moment I stopped waiting for motivation and started building discipline. Walking through the gym doors consistently especially on the days I least wanted to became the catalyst for a total life transformation.\n\nHere is how committing to the gym rewritten my daily life:\n\nDiscipline Over Motivation, Motivation is fleeting, but discipline is a muscle you build. Learning to show up and execute a workout when I had zero energy taught me how to handle tough assignments, work deadlines, and personal hurdles without making excuses.\n\n𝗠𝗲𝗻𝘁𝗮𝗹 𝗖𝗹𝗮𝗿𝗶𝘁𝘆 𝗮𝗻𝗱 𝗥𝗲𝘀𝗶𝗹𝗶𝗲𝗻𝗰𝗲, The gym became my mental reset button. Pushing through heavy sets taught me how to stay calm under pressure. The physical grit I developed directly translated into mental toughness in my everyday life.\n\n𝗧𝗵𝗲 𝗣𝗼𝘄𝗲𝗿 𝗼𝗳 𝗖𝗼𝗺𝗽𝗼𝘂𝗻𝗱𝗶𝗻𝗴 𝗦𝗺𝗮𝗹𝗹 𝗪𝗶𝗻𝘀, You don't build a better physique or a better life in one day. Progress comes from small, repeatable choices one repetition, one meal, and one workout at a time. Seeing physical results over months proved to me that consistent effort always pays off.\n\n𝗖𝗼𝗻𝗳𝗶𝗱𝗲𝗻𝗰𝗲 𝗥𝗼𝗼𝘁𝗲𝗱 𝗶𝗻 𝗘𝗳𝗳𝗼𝗿𝘁, True confidence doesn't come from compliments it comes from keeping the promises you make to yourself. Knowing that I set a goal and followed through built an authentic sense of self respect that no one can take away.",
     tag: 'PT - EffCom',
