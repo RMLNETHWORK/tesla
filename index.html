@@ -1,60 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<!-- Forces EVERY relative URL on this page — stylesheet/script src,
-     img src in data.js content, fetch() calls in index.js, anything
-     without a leading "/" — to resolve against the site root, not
-     against whatever the current path happens to be. Without this, a
-     direct load/refresh of an item URL like /snaps/?snap=<token> (note
-     the trailing slash) makes the browser treat "/snaps/" as a
-     directory and resolve "index.css" as "/snaps/index.css" (404) —
-     the styleless-page bug. See README.md → "Cache-busting" /
-     "URL scheme" for the routes this protects. -->
-<base href="/" />
-<title>Tesla Archive</title>
-<meta name="description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
-<link rel="canonical" href="/" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Forces EVERY relative URL on this page — stylesheet/script src,
+      img src in data.js content, fetch() calls in index.js, anything
+      without a leading "/" — to resolve against the site root, not
+      against whatever the current path happens to be. Without this, a
+      direct load/refresh of an item URL like /snaps/?snap=<token> (note
+      the trailing slash) makes the browser treat "/snaps/" as a
+      directory and resolve "index.css" as "/snaps/index.css" (404) —
+      the styleless-page bug. See README.md → "Cache-busting" /
+      "URL scheme" for the routes this protects. -->
+  <base href="/" />
+  <title>Tesla Archive</title>
+  <meta name="description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
+  <link rel="canonical" href="/" />
 
-<!-- Default sharing preview. Static values below are what a plain static
-     host (no functions/) serves as-is. On Cloudflare Pages,
-     functions/_middleware.js rewrites og:image/twitter:image on every
-     request to an absolute URL, and additionally swaps in the matching
-     category seal (snaps.png / scrolls.png / posts.png from
-     assets/icons/) plus a specific title/description whenever the URL
-     is a Snaps, Scrolls, or Posts page or permalink — same pattern as
-     ChromaX's ?c=HEX open graph swap, just keyed off the category/route
-     instead of a query color. See README.md → "Sharing previews".
+  <!-- Default sharing preview. Static values below are what a plain static
+      host (no functions/) serves as-is. On Cloudflare Pages,
+      functions/_middleware.js rewrites og:image/twitter:image on every
+      request to an absolute URL, and additionally swaps in the matching
+      category seal (snaps.png / scrolls.png / posts.png from
+      assets/icons/) plus a specific title/description whenever the URL
+      is a Snaps, Scrolls, or Posts page or permalink — same pattern as
+      ChromaX's ?c=HEX open graph swap, just keyed off the category/route
+      instead of a query color. See README.md → "Sharing previews".
 
-     og-home.png (1200x630, assets/) is a static card styled after the
-     home hero — same background photo, gradient wash, diagonal grain,
-     seal, and copy as .home-hero in index.css, baked into one flat
-     image once rather than generated per-request like og.png.js does
-     for Snaps/Scrolls/Posts. The home page's content never changes
-     item-to-item the way a post does, so there's nothing dynamic here
-     worth spending a Function invocation on — a plain static asset is
-     simpler and cacheable like any other file in assets/. Regenerate
-     it (build/make_og_home.py) if the hero copy or design ever changes. -->
-<meta property="og:type" content="website" />
-<meta property="og:title" content="Tesla Archive" />
-<meta property="og:description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
-<meta property="og:image" content="/assets/og-home.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-<meta property="og:image:type" content="image/png" />
-<meta property="og:url" content="/" />
+      og-home.png (1200x630, assets/) is a static card styled after the
+      home hero — same background photo, gradient wash, diagonal grain,
+      seal, and copy as .home-hero in index.css, baked into one flat
+      image once rather than generated per-request like og.png.js does
+      for Snaps/Scrolls/Posts. The home page's content never changes
+      item-to-item the way a post does, so there's nothing dynamic here
+      worth spending a Function invocation on — a plain static asset is
+      simpler and cacheable like any other file in assets/. Regenerate
+      it (build/make_og_home.py) if the hero copy or design ever changes. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Tesla Archive" />
+  <meta property="og:description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
+  <meta property="og:image" content="/assets/og-home.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:url" content="/" />
 
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Tesla Archive" />
-<meta name="twitter:description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
-<meta name="twitter:image" content="/assets/og-home.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Tesla Archive" />
+  <meta name="twitter:description" content="Tesla Archive — Snaps, Scrolls, and Posts from XI-TESLA." />
+  <meta name="twitter:image" content="/assets/og-home.png" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="index.css" />
-<link rel="shortcut icon" href="/assets/seal.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="index.css" />
+  <link rel="shortcut icon" href="/assets/seal.png" type="image/png" />
+  <script async="async" data-cfasync="false" src="https://pl31060540.profitableratecpmnetwork.com/161868ad0ee17a5cbd1f0a19b504d2d4/invoke.js"></script>
 </head>
 <body>
 

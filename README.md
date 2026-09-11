@@ -61,7 +61,7 @@ you at build time, since there is no build step.
   id: 'post-unique-id',
   title: 'Headline goes here',
   description: 'A sentence or two of body text.',
-  tag: 'Post',            // or 'PT - EffCom', or a new tag you add below
+  tag: 'Post',            // or 'PT1 - EffCom', or a new tag you add below
   image: 'assets/posts/your-photo.jpg',   // use this OR `video`, not both
   date: '2026-08-05',
 }
